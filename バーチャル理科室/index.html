@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light" data-fontsize="normal" data-ruby="on">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ラボ・ロジカ（LAB LOGICA）- バーチャル理科室</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 常時表示のトップバー（迷わない＆誰でも見やすいクイック設定） -->
+    <header class="top-bar" id="top-bar">
+      <div class="top-bar-left">
+        <button class="icon-btn" id="btn-home" title="タイトル画面へ戻る">🏠 タイトル</button>
+        <span class="top-bar-title">ラボ・ロジカ</span>
+      </div>
+      <div class="top-bar-actions">
+        <button class="icon-btn" id="btn-quick-ruby" title="ふりがな切替">あ ふりがな: ON</button>
+        <button class="icon-btn" id="btn-quick-font" title="文字サイズ切替">🔍 文字: 標準</button>
+        <button class="icon-btn" id="btn-quick-theme" title="明るさ切替">☀️ ライト</button>
+        <button class="icon-btn" id="btn-quick-sound" title="効果音切替">🔊 音ON</button>
+      </div>
+    </header>
+
+    <!-- 1. タイトル画面（妖怪ウォッチ風ポップ画面） -->
+    <main class="screen active title-screen" id="screen-title">
+      <div class="title-floating-icons" aria-hidden="true">
+        <span>🧪</span><span>🔬</span><span>⚡</span><span>🧬</span><span>🔥</span><span>🧲</span>
+      </div>
+
+      <div class="title-badge">高校理科 体験＆動画シミュレーター</div>
+
+      <div class="title-logo-box">
+        <h1 class="title-logo-main">ラボ・ロジカ</h1>
+        <p class="title-logo-sub">LAB LOGICA — 見て・触って・わかる<ruby>理<rt>り</rt>科<rt>か</rt>実<rt>じっ</rt>験<rt>けん</rt></ruby></p>
+      </div>
+
+      <div class="title-progress-pill" id="title-progress">
+        体験済み実験：0 / 8 ｜ 解放器具：0 / 10
+      </div>
+
+      <div class="title-menu-buttons">
+        <button class="big-game-btn btn-start" id="btn-go-subjects">
+          <span>🧪</span>
+          <span><ruby>教<rt>きょう</rt>科<rt>か</rt>選<rt>せん</rt>択<rt>たく</rt></ruby>（実験スタート）</span>
+        </button>
+        <button class="big-game-btn btn-menu" id="btn-go-menu">
+          <span>🎒</span>
+          <span>メニュー（図鑑・クイズ・設定）</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- 2. 教科選択画面 -->
+    <section class="screen" id="screen-subjects">
+      <div class="section-header">
+        <h2 class="section-heading">📚 <ruby>教<rt>きょう</rt>科<rt>か</rt></ruby>をえらぼう</h2>
+        <button class="back-btn" data-back="screen-title">← タイトルへ</button>
+      </div>
+      <div class="card-grid" id="subject-grid"></div>
+    </section>
+
+    <!-- 3. 単元選択画面 -->
+    <section class="screen" id="screen-units">
+      <div class="section-header">
+        <h2 class="section-heading" id="units-heading">単元をえらぼう</h2>
+        <button class="back-btn" data-back="screen-subjects">← 教科選択へ</button>
+      </div>
+      <div class="card-grid" id="units-container"></div>
+    </section>
+
+    <!-- 3.5 実験選択画面 -->
+    <section class="screen" id="screen-experiments">
+      <div class="section-header">
+        <h2 class="section-heading" id="experiments-heading">実験をえらぼう</h2>
+        <button class="back-btn" data-back="screen-units">← 単元選択へ</button>
+      </div>
+      <div class="exp-list" id="experiments-container"></div>
+    </section>
+
+    <!-- 4. 実際に実験する画面 -->
+    <section class="screen" id="screen-sim">
+      <div class="section-header">
+        <h2 class="section-heading" id="sim-heading">🧪 実験室</h2>
+        <button class="back-btn" data-back="screen-experiments">← 実験選択へ</button>
+      </div>
+
+      <div class="lab-panel">
+        <div class="guide-banner" id="sim-guide-banner">
+          <span>🧭</span>
+          <span id="sim-guide-text">手順に沿って操作してみよう！</span>
+        </div>
+
+        <div class="lab-stage" id="sim-stage"></div>
+
+        <div class="status-readout" id="sim-readout"></div>
+
+        <div class="lab-controls" id="sim-controls"></div>
+
+        <div class="point-box" id="sim-point-box" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- 5. 動画を視聴する画面（オフライン＆オンライン両対応） -->
+    <section class="screen" id="screen-video">
+      <div class="section-header">
+        <h2 class="section-heading" id="video-heading">🎬 実験動画・解説</h2>
+        <button class="back-btn" data-back="screen-experiments">← 実験選択へ</button>
+      </div>
+
+      <div class="lab-panel">
+        <div class="video-tabs">
+          <button class="tab-btn active" id="vtab-offline">📱 オフライン動画（PVアニメ再生）</button>
+          <button class="tab-btn" id="vtab-online">🌐 オンライン（YouTube実写動画）</button>
+        </div>
+
+        <div id="video-offline-pane" class="anim-stage">
+          <canvas id="pv-canvas" width="640" height="360"></canvas>
+          <div class="video-progress-wrap" id="video-progress-wrap" title="クリックして再生位置を移動">
+            <div class="video-progress-fill" id="video-progress-fill"></div>
+          </div>
+          <div class="lab-controls" style="margin-top:10px;">
+            <button class="lab-btn" id="btn-pv-play">⏸ 一時停止</button>
+            <button class="lab-btn secondary" id="btn-pv-restart">⏮ 最初から</button>
+          </div>
+          <p id="pv-time-label" style="font-weight:800; margin:8px 0 0; font-size:0.9em;">00:00 / 00:16</p>
+        </div>
+
+        <div id="video-online-pane" class="anim-stage" style="display:none;">
+          <p style="font-weight:800; margin-top:0;">🌐 オンライン環境では、実際の実験映像（YouTube）も視聴できます！</p>
+          <p style="color:var(--text-sub); font-size:0.92em;">下のボタンを押すと、この実験の実写動画を新しいタブで検索して開きます。</p>
+          <a id="btn-youtube-search" href="#" target="_blank" rel="noopener noreferrer" class="big-game-btn btn-start" style="max-width:340px; margin:12px auto; text-decoration:none; font-size:1em; padding:14px;">
+            🎬 YouTubeで実写動画を見る
+          </a>
+          <p style="font-size:0.82em; color:var(--text-sub); margin-bottom:0;">※オフライン時は「オフライン再生」タブからいつでも図解アニメを確認できます。</p>
+        </div>
+
+        <div class="point-box">
+          <strong>📌 この実験の重要ポイント：</strong>
+          <ul id="video-points-list" style="margin:8px 0 0; padding-left:20px;"></ul>
+        </div>
+
+        <div class="lab-controls">
+          <button class="lab-btn success" id="btn-video-complete">✅ 視聴完了！（図鑑・クイズを解放）</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. メニュー画面（図鑑・クイズ・設定） -->
+    <section class="screen" id="screen-menu">
+      <div class="section-header">
+        <h2 class="section-heading">🎒 メニュー</h2>
+        <button class="back-btn" data-back="screen-title">← タイトルへ</button>
+      </div>
+
+      <div class="menu-tabs">
+        <button class="menu-tab-btn active" data-mtab="equip">🔧 <ruby>実<rt>じっ</rt>験<rt>けん</rt>器<rt>き</rt>具<rt>ぐ</rt>図<rt>ず</rt>鑑<rt>かん</rt></ruby></button>
+        <button class="menu-tab-btn" data-mtab="quiz">❓ <ruby>実<rt>じっ</rt>験<rt>けん</rt></ruby>クイズ</button>
+        <button class="menu-tab-btn" data-mtab="settings">⚙️ <ruby>設<rt>せっ</rt>定<rt>てい</rt></ruby></button>
+      </div>
+
+      <!-- 器具図鑑タブ -->
+      <div id="mtab-equip" class="mtab-pane">
+        <p style="margin-top:0; color:var(--text-sub); font-weight:700;">実験を体験または視聴すると、使った器具がアンロックされます！</p>
+        <div class="equip-grid" id="equip-grid"></div>
+      </div>
+
+      <!-- 実験クイズタブ -->
+      <div id="mtab-quiz" class="mtab-pane" style="display:none;">
+        <div id="quiz-area"></div>
+      </div>
+
+      <!-- 設定タブ -->
+      <div id="mtab-settings" class="mtab-pane" style="display:none;">
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🔊 <ruby>効<rt>こう</rt>果<rt>か</rt>音<rt>おん</rt></ruby>（ボタン・実験音）</div>
+            <div class="setting-sub">操作時のサウンドを鳴らすかどうかを切り替えます</div>
+          </div>
+          <button class="toggle-btn" id="set-sound">ON</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">あ ふりがな（ルビ）表示</div>
+            <div class="setting-sub">難しい漢字の上に読み方を表示します</div>
+          </div>
+          <button class="toggle-btn" id="set-ruby">ON</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🔍 文字サイズ</div>
+            <div class="setting-sub">画面全体の文字を読みやすく大きくします</div>
+          </div>
+          <button class="toggle-btn" id="set-font">標準</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🧭 実験ガイド表示</div>
+            <div class="setting-sub">実験中に「次にやること」の案内を表示します</div>
+          </div>
+          <button class="toggle-btn" id="set-guide">ON</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🌗 画面テーマ</div>
+            <div class="setting-sub">明るいライト画面と暗いダーク画面を切り替えます</div>
+          </div>
+          <button class="toggle-btn" id="set-theme">ライト</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🗑️ 進行データのリセット</div>
+            <div class="setting-sub">体験済み・解放データを初期状態に戻します</div>
+          </div>
+          <button class="lab-btn secondary" id="btn-reset-data" style="padding:10px 14px; font-size:0.88em;">リセット</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="data_extra.js"></script>
+  <script src="sim_canvas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
