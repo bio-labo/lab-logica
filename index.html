@@ -4,17 +4,868 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ラボ・ロジカ（LAB LOGICA）- バーチャル理科室</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  --bg-main: #f4f7fb;
+  --bg-card: #ffffff;
+  --bg-soft: #eaf1fb;
+  --text-main: #1e293b;
+  --text-sub: #475569;
+  --border-color: #cbd5e1;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --accent-chem: #0284c7;
+  --accent-bio: #16a34a;
+  --accent-phys: #d97706;
+  --accent-menu: #7c3aed;
+  --danger: #dc2626;
+  --success: #15803d;
+  --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.12);
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --base-font-size: 16px;
+}
+
+[data-theme="dark"] {
+  --bg-main: #0f172a;
+  --bg-card: #1e293b;
+  --bg-soft: #263449;
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --border-color: #334155;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+[data-fontsize="large"] {
+  --base-font-size: 19px;
+}
+
+[data-ruby="off"] rt {
+  display: none;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, -apple-system, sans-serif;
+  font-size: var(--base-font-size);
+  line-height: 1.6;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+}
+
+rt {
+  font-size: 0.58em;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.app-container {
+  max-width: 960px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px 32px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.top-bar-title {
+  font-weight: 800;
+  font-size: 1.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.85em;
+  border: 1px solid var(--border-color);
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.96);
+}
+
+.icon-btn.bio-link {
+  background: linear-gradient(135deg, #059669, #0d9488);
+  color: #ffffff;
+  border-color: #065f46;
+}
+
+.screen {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+}
+
+.screen.active {
+  display: flex;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title-screen {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at top, #dbeafe 0%, #eff6ff 45%, #fef9c3 100%);
+  border: 4px solid #3b82f6;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  min-height: 78vh;
+}
+
+[data-theme="dark"] .title-screen {
+  background: radial-gradient(circle at top, #1e3a8a 0%, #0f172a 60%, #1e1b4b 100%);
+  border-color: #60a5fa;
+}
+
+.title-floating-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  font-size: 3rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.title-badge {
+  display: inline-block;
+  background: #f59e0b;
+  color: #ffffff;
+  font-weight: 800;
+  padding: 5px 16px;
+  border-radius: 999px;
+  font-size: 0.88em;
+  letter-spacing: 0.04em;
+  box-shadow: 0 3px 0 #b45309;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.title-logo-box {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 14px;
+}
+
+.title-logo-main {
+  font-size: clamp(2.1rem, 7vw, 3.6rem);
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 0.05em;
+  color: #1d4ed8;
+  text-shadow: 0 4px 0 #ffffff, 0 6px 14px rgba(37, 99, 235, 0.25);
+}
+
+[data-theme="dark"] .title-logo-main {
+  color: #60a5fa;
+  text-shadow: 0 4px 0 #0f172a, 0 6px 14px rgba(96, 165, 250, 0.35);
+}
+
+.title-logo-sub {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text-sub);
+  margin: 4px 0 0;
+}
+
+.title-progress-pill {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9em;
+  font-weight: 700;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.title-menu-buttons {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.big-game-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 22px;
+  border-radius: 18px;
+  font-size: 1.22em;
+  font-weight: 900;
+  color: #ffffff;
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+
+.big-game-btn:hover {
+  filter: brightness(1.06);
+}
+
+.big-game-btn:active {
+  transform: translateY(3px);
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  box-shadow: 0 6px 0 #1e40af, 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.btn-menu {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 6px 0 #5b21b6, 0 10px 20px rgba(124, 58, 237, 0.3);
+}
+
+.btn-biologica {
+  text-decoration: none;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  box-shadow: 0 6px 0 #065f46, 0 10px 20px rgba(5, 150, 105, 0.3);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.section-heading {
+  font-size: 1.35em;
+  font-weight: 800;
+  margin: 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  font-weight: 700;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.subject-card, .unit-card {
+  background: var(--bg-card);
+  border: 3px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px 18px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.15s ease, border-color 0.2s ease;
+  color: var(--text-main);
+}
+
+.subject-card:hover, .unit-card:hover {
+  transform: translateY(-3px);
+}
+
+.unit-card:hover { border-color: var(--primary); }
+.subject-card.chem { border-color: var(--accent-chem); }
+.subject-card.bio { border-color: var(--accent-bio); }
+.subject-card.phys { border-color: var(--accent-phys); }
+
+.subject-icon {
+  font-size: 2.4em;
+  line-height: 1;
+}
+
+.subject-name {
+  font-size: 1.35em;
+  font-weight: 900;
+  margin: 0;
+}
+
+.subject-desc {
+  font-size: 0.92em;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.subject-stat {
+  margin-top: auto;
+  font-size: 0.85em;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.exp-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.exp-card {
+  background: var(--bg-soft);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exp-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.exp-name {
+  font-size: 1.05em;
+  font-weight: 800;
+  margin: 0;
+}
+
+.badge {
+  font-size: 0.75em;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-done {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.badge-playable {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.badge-plan {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.exp-summary {
+  font-size: 0.88em;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.exp-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.action-btn {
+  padding: 11px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.88em;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.action-btn.sim {
+  background: #2563eb;
+  box-shadow: 0 3px 0 #1e40af;
+}
+
+.action-btn.sim:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.action-btn.video {
+  background: #0d9488;
+  box-shadow: 0 3px 0 #115e59;
+}
+
+.lab-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.guide-banner {
+  background: #fef3c7;
+  color: #92400e;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-theme="dark"] .guide-banner {
+  background: #451a03;
+  color: #fde68a;
+}
+
+.lab-stage {
+  background: var(--bg-soft);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.lab-btn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 3px 0 #1e40af;
+}
+
+.lab-btn.secondary {
+  background: #64748b;
+  box-shadow: 0 3px 0 #334155;
+}
+
+.lab-btn.success {
+  background: #16a34a;
+  box-shadow: 0 3px 0 #166534;
+}
+
+.lab-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.readout-chip {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 800;
+  font-size: 0.92em;
+}
+
+.beaker-wrap {
+  position: relative;
+  width: 130px;
+  height: 155px;
+  border: 4px solid #64748b;
+  border-top: none;
+  border-radius: 0 0 18px 18px;
+  background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.beaker-liquid {
+  width: 100%;
+  transition: height 0.35s ease, background-color 0.35s ease;
+  position: relative;
+}
+
+.precipitate-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  transition: height 0.4s ease, background-color 0.3s ease;
+}
+
+.flame-burner {
+  width: 90px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.flame-cone {
+  width: 44px;
+  height: 85px;
+  border-radius: 50% 50% 35% 35%;
+  background: radial-gradient(circle at bottom, #93c5fd, #3b82f6 60%, transparent 95%);
+  transition: all 0.25s ease;
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
+}
+
+.microscope-view {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  border: 8px solid #334155;
+  background: #ecfdf5;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.microscope-cells {
+  font-size: 2.2rem;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.video-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 800;
+  background: var(--bg-soft);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.anim-stage {
+  background: var(--bg-soft);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+.point-box {
+  background: var(--bg-card);
+  border-left: 5px solid #f59e0b;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+
+.menu-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.menu-tab-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  font-weight: 800;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  font-size: 0.92em;
+}
+
+.menu-tab-btn.active {
+  background: var(--accent-menu);
+  color: #ffffff;
+  border-color: var(--accent-menu);
+}
+
+.equip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.equip-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equip-card.locked {
+  opacity: 0.6;
+  background: var(--bg-soft);
+}
+
+.quiz-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quiz-opt-btn {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  text-align: left;
+  font-weight: 700;
+}
+
+.quiz-opt-btn.correct {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #14532d;
+}
+
+.quiz-opt-btn.wrong {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #7f1d1d;
+}
+
+.setting-row {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.setting-label {
+  font-weight: 800;
+}
+
+.setting-sub {
+  font-size: 0.84em;
+  color: var(--text-sub);
+}
+
+.toggle-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+  min-width: 90px;
+  color: #ffffff;
+  background: #64748b;
+}
+
+.toggle-btn.on {
+  background: #16a34a;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 999;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+#pv-canvas {
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  background: #0f172a;
+  box-shadow: var(--shadow-md);
+  display: block;
+  margin: 0 auto;
+}
+
+.video-progress-wrap {
+  width: 100%;
+  max-width: 640px;
+  height: 12px;
+  background: var(--border-color);
+  border-radius: 999px;
+  margin: 12px auto 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.video-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  transition: width 0.05s linear;
+}
+
+@media (max-width: 520px) {
+  .exp-actions {
+    grid-template-columns: 1fr;
+  }
+  .menu-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+  </style>
 </head>
 <body>
   <div class="app-container">
-    <!-- 常時表示のトップバー（迷わない＆誰でも見やすいクイック設定） -->
+    <!-- 常時表示のトップバー -->
     <header class="top-bar" id="top-bar">
       <div class="top-bar-left">
         <button class="icon-btn" id="btn-home" title="タイトル画面へ戻る">🏠 タイトル</button>
         <span class="top-bar-title">ラボ・ロジカ</span>
       </div>
       <div class="top-bar-actions">
+        <button class="icon-btn bio-link" id="btn-top-biologica" title="バイオ・ロジカへ移動">🧬 バイオ・ロジカへ戻る</button>
         <button class="icon-btn" id="btn-quick-ruby" title="ふりがな切替">あ ふりがな: ON</button>
         <button class="icon-btn" id="btn-quick-font" title="文字サイズ切替">🔍 文字: 標準</button>
         <button class="icon-btn" id="btn-quick-theme" title="明るさ切替">☀️ ライト</button>
@@ -22,7 +873,7 @@
       </div>
     </header>
 
-    <!-- 1. タイトル画面（妖怪ウォッチ風ポップ画面） -->
+    <!-- 1. タイトル画面 -->
     <main class="screen active title-screen" id="screen-title">
       <div class="title-floating-icons" aria-hidden="true">
         <span>🧪</span><span>🔬</span><span>⚡</span><span>🧬</span><span>🔥</span><span>🧲</span>
@@ -36,7 +887,7 @@
       </div>
 
       <div class="title-progress-pill" id="title-progress">
-        体験済み実験：0 / 8 ｜ 解放器具：0 / 10
+        体験済み実験：0 / 69 ｜ 解放器具：0 / 25
       </div>
 
       <div class="title-menu-buttons">
@@ -48,10 +899,10 @@
           <span>🎒</span>
           <span>メニュー（図鑑・クイズ・設定）</span>
         </button>
-        <a href="https://bio-labo.github.io/biologica/" class="big-game-btn btn-biologica" id="btn-go-biologica">
+        <button class="big-game-btn btn-biologica" id="btn-go-biologica">
           <span>🧬</span>
-          <span>バイオ・ロジカへ</span>
-        </a>
+          <span>バイオ・ロジカへ戻る</span>
+        </button>
       </div>
     </main>
 
@@ -136,7 +987,7 @@
           <a id="btn-youtube-search" href="#" target="_blank" rel="noopener noreferrer" class="big-game-btn btn-start" style="max-width:340px; margin:12px auto; text-decoration:none; font-size:1em; padding:14px;">
             🎬 YouTubeで実写動画を見る
           </a>
-          <p style="font-size:0.82em; color:var(--text-sub); margin-bottom:0;">※オフライン時は「オフライン再生」タブからいつでも図解アニメを確認できます。</p>
+          <p style="font-size:0.82em; color:var(--text-sub); margin-bottom:0;">※オフライン時は「オフライン動画」タブからいつでもPVアニメを確認できます。</p>
         </div>
 
         <div class="point-box">
@@ -154,7 +1005,10 @@
     <section class="screen" id="screen-menu">
       <div class="section-header">
         <h2 class="section-heading">🎒 メニュー</h2>
-        <button class="back-btn" data-back="screen-title">← タイトルへ</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="back-btn" id="btn-menu-biologica" style="background:linear-gradient(135deg,#059669,#0d9488); color:#fff; border-color:#065f46;">🧬 バイオ・ロジカへ戻る</button>
+          <button class="back-btn" data-back="screen-title">← タイトルへ</button>
+        </div>
       </div>
 
       <div class="menu-tabs">
@@ -229,9 +1083,4191 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data.js"></script>
-  <script src="data_extra.js"></script>
-  <script src="sim_canvas.js"></script>
-  <script src="app.js"></script>
+  <script>
+// ラボ・ロジカ（LAB LOGICA）全教科・全実験マスターデータ（33実験・16器具・33クイズ）
+
+const SUBJECTS_DATA = [
+  {
+    id: 'chem',
+    name: '化学',
+    ruby: '<ruby>化<rt>か</rt>学<rt>がく</rt></ruby>',
+    icon: '🧪',
+    desc: '物質の性質・反応・色の変化を実験しよう！',
+    units: [
+      {
+        id: 'chem_theory',
+        name: '<ruby>理<rt>り</rt>論<rt>ろん</rt>化<rt>か</rt>学<rt>がく</rt></ruby>（酸塩基・電池・平衡）',
+        experiments: [
+          {
+            id: 'chem_neutral',
+            name: '<ruby>中<rt>ちゅう</rt>和<rt>わ</rt>滴<rt>てき</rt>定<rt>てい</rt></ruby>（BTB溶液）',
+            summary: '塩酸に水酸化ナトリウム水溶液を少しずつ加え、液性の変化を観察する実験。',
+            playable: true,
+            simType: 'neutralization',
+            equipmentIds: ['burette', 'conical_flask', 'pipette'],
+            youtubeQuery: '高校化学 中和滴定 実験',
+            points: [
+              '酸性(黄) → 中性(緑) → 塩基性(青) に一瞬で切り替わる瞬間（中和点）を見極める！',
+              'ビュレットは共洗い、コニカルビーカーは純水ですすぐ（共洗いNG）のがテスト頻出！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：準備と指示薬', desc: 'コニカルビーカーに塩酸を入れ、BTB溶液を数滴加えると「黄色（酸性）」になります。' },
+              { icon: '💧', title: 'ステップ2：NaOHを滴下', desc: 'ビュレットから水酸化ナトリウム水溶液を少しずつ落とすと H+ が中和されます。' },
+              { icon: '🟢', title: 'ステップ3：中和点（緑色）', desc: 'H+ と OH- の数がちょうど等しくなった瞬間、溶液が「緑色（中性）」になります！' },
+              { icon: '🔵', title: 'ステップ4：塩基性（青色）', desc: 'さらに1滴多く入れると OH- が余り、「青色（塩基性）」に変化します。' }
+            ]
+          },
+          {
+            id: 'chem_daniell',
+            name: 'ダニエル<ruby>電<rt>でん</rt>池<rt>ち</rt></ruby>の起電反応',
+            summary: '亜鉛板と銅板、素焼き板を使って電流が流れる仕組みを確かめる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '電極をつないでスイッチを入れ、亜鉛板と銅板の変化を観察しよう！',
+              stages: [
+                { label: '🔌 電極を導線でつなぐ', visual: '🔋', bg: 'rgba(56,189,248,0.35)', text: '硫酸亜鉛水溶液にZn板、硫酸銅水溶液にCu板をセット！' },
+                { label: '⚡ スイッチON（放電開始）', visual: '💡✨', bg: 'rgba(34,197,94,0.4)', text: '豆電球が点灯！負極(Zn)が溶け出し、正極(Cu)に赤い銅が析出！' },
+                { label: '🔍 素焼き板の役割を確認', visual: '🧱', bg: 'rgba(250,204,21,0.35)', text: 'SO4^2- が素焼き板を通過して両液の電気的中性を保っています！' }
+              ]
+            },
+            equipmentIds: ['beaker', 'porous_plate'],
+            youtubeQuery: '高校化学 ダニエル電池 実験',
+            points: [
+              'イオン化傾向が大きい Zn が負極（溶けて電子を出す）、Cu が正極（Cu2+が電子を受け取る）。',
+              '素焼き板は2つの水溶液が混ざるのを防ぎつつ、イオンだけを通す役割！'
+            ],
+            steps: [
+              { icon: '🔋', title: 'ステップ1：2つの水溶液', desc: 'ZnSO4水溶液に亜鉛板、CuSO4水溶液に銅板を差し込み、素焼き板で仕切ります。' },
+              { icon: '⚡', title: 'ステップ2：電子の流れ', desc: 'Zn が Zn2+ になって溶け、電子が導線を通って銅板へ向かいます。' },
+              { icon: '🟠', title: 'ステップ3：銅の析出', desc: '銅板の表面で Cu2+ が電子を受け取り、赤い銅が析出します。' }
+            ]
+          },
+          {
+            id: 'chem_electrolysis',
+            name: '硫酸銅(II)水溶液の<ruby>電<rt>でん</rt>気<rt>き</rt>分<rt>ぶん</rt>解<rt>かい</rt></ruby>',
+            summary: '白金電極でCuSO4水溶液を電気分解し、両極の変化を観察する実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '電源装置をONにして、陽極と陰極で起こる反応を順に観察しよう！',
+              stages: [
+                { label: '🔌 白金電極をセット', visual: '🧪', bg: 'rgba(56,189,248,0.55)', text: '青色の硫酸銅(II)水溶液に白金電極を2本差し込みました。' },
+                { label: '⚡ 電源ON（陰極に注目）', visual: '🟠', bg: 'rgba(56,189,248,0.35)', text: '陰極（－）では Cu2+ が電子を受け取り、赤褐色の銅（Cu）が析出！' },
+                { label: '🫧 陽極に注目', visual: '🫧', bg: 'rgba(186,230,253,0.35)', text: '陽極（＋）では水が酸化されて「酸素（O2）」の泡が発生し、液色は薄くなる！' }
+              ]
+            },
+            equipmentIds: ['beaker', 'power_supply'],
+            youtubeQuery: '高校化学 電気分解 硫酸銅 実験',
+            points: [
+              '陰極：Cu2+ + 2e- → Cu（銅が析出）',
+              '陽極（白金・炭素電極）：2H2O → O2 + 4H+ + 4e-（酸素発生＆酸性に傾く）'
+            ],
+            steps: [
+              { icon: '🔌', title: 'ステップ1：通電開始', desc: '直流電源装置をつないで電流を流します。' },
+              { icon: '🟠', title: 'ステップ2：陰極に銅が析出', desc: '陰極の表面が赤く色づき、水溶液の青色はだんだん薄くなります。' },
+              { icon: '🫧', title: 'ステップ3：陽極から酸素', desc: '陽極からは酸素の泡が発生し、水溶液は酸性になります。' }
+            ]
+          },
+          {
+            id: 'chem_equilibrium',
+            name: 'ルシャトリエの<ruby>平<rt>へい</rt>衡<rt>こう</rt>移<rt>い</rt>動<rt>どう</rt></ruby>',
+            summary: 'NO2（赤褐色）と N2O4（無色）の混合気体を冷やしたり温めたりして平衡移動を見る実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '温度スライダーを「氷水（低温）」〜「お湯（高温）」に動かして色の変化を観察しよう！',
+              label: '温度（℃）',
+              min: 0,
+              max: 80,
+              initial: 25,
+              unit: '℃',
+              targetCheck: (v) => v <= 5 || v >= 70,
+              describe: (v) => {
+                if (v <= 15) return { bg: 'rgba(254, 215, 170, 0.35)', icon: '❄️', status: '色が薄くなった！（無色の N2O4 が増加＝発熱方向へ移動）' };
+                if (v >= 55) return { bg: 'rgba(154, 52, 18, 0.78)', icon: '🔥', status: '濃い赤褐色になった！（NO2 が増加＝吸熱方向へ移動）' };
+                return { bg: 'rgba(234, 88, 12, 0.5)', icon: '🌡️', status: '室温（赤褐色の NO2 と無色の N2O4 が平衡状態）' };
+              }
+            },
+            equipmentIds: ['test_tube', 'water_bath'],
+            youtubeQuery: '高校化学 ルシャトリエ NO2 N2O4 実験',
+            points: [
+              '2NO2（赤褐色） ⇌ N2O4（無色）＋ Q kJ（右向きが発熱反応）',
+              '温めると吸熱方向（左：NO2増・濃くなる）、冷やすと発熱方向（右：N2O4増・薄くなる）！'
+            ],
+            steps: [
+              { icon: '🌡️', title: 'ステップ1：室温のフラスコ', desc: '2NO2 ⇌ N2O4 の平衡状態で、薄い赤褐色をしています。' },
+              { icon: '❄️', title: 'ステップ2：氷水で冷やす', desc: '温度を下げると発熱反応が進み、無色の N2O4 が増えて色が薄くなります！' },
+              { icon: '🔥', title: 'ステップ3：お湯で温める', desc: '温度を上げると吸熱反応が進み、赤褐色の NO2 が増えて色が濃くなります！' }
+            ]
+          },
+          {
+            id: 'chem_colloid',
+            name: 'コロイドの<ruby>透<rt>とう</rt>析<rt>せき</rt></ruby>・チンダル・<ruby>凝<rt>ぎょう</rt>析<rt>せき</rt></ruby>',
+            summary: '水酸化鉄(III)コロイドに光を当てたり、少量の電解質を加えて凝析を起こす実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'チンダル現象、透析、凝析の3つのコロイド特有の現象を順番に体験しよう！',
+              stages: [
+                { label: '🔦 レーザー光を当てる（チンダル現象）', visual: '🔦✨', bg: 'rgba(180,83,9,0.55)', text: '光の通り道がくっきり光った！コロイド粒子が光を散乱しています。' },
+                { label: '🧻 セロハン袋で透析する', visual: '💧', bg: 'rgba(180,83,9,0.5)', text: '小さなイオンだけが外に出て、大きなコロイド粒子は袋の中に残った！' },
+                { label: '🧂 電解質を少量加える（凝析）', visual: '🧱', bg: 'rgba(120,53,15,0.75)', text: '少量の電解質で電気的反発が消え、コロイドが沈殿（凝析）した！' }
+              ]
+            },
+            equipmentIds: ['beaker', 'pipette'],
+            youtubeQuery: '高校化学 コロイド チンダル現象 凝析 実験',
+            points: [
+              '疎水コロイド（Fe(OH)3など）は「少量」の電解質で沈殿（凝析）する。',
+              '透析では半透膜（セロハンなど）を使い、分子やイオンだけを取り除ける。'
+            ],
+            steps: [
+              { icon: '🔦', title: 'ステップ1：チンダル現象', desc: 'コロイド溶液に強い光を当てると、粒子が光を散乱して光の道筋が見えます。' },
+              { icon: '🧻', title: 'ステップ2：透析', desc: '半透膜の袋に入れて純水に浸すと、不要なイオンだけが外へ流れ出ます。' },
+              { icon: '🧂', title: 'ステップ3：凝析', desc: '疎水コロイドに少量の電解質を加えると沈殿します。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'chem_inorg',
+        name: '<ruby>無<rt>む</rt>機<rt>き</rt>化<rt>か</rt>学<rt>がく</rt></ruby>（イオン・気体・炎色）',
+        experiments: [
+          {
+            id: 'chem_flame',
+            name: '<ruby>炎<rt>えん</rt>色<rt>しょく</rt>反<rt>はん</rt>応<rt>のう</rt></ruby>',
+            summary: '金属元素を含む水溶液を炎の中に入れて、特有の美しい炎の色を観察する実験。',
+            playable: true,
+            simType: 'flame',
+            equipmentIds: ['platinum_loop', 'gas_burner'],
+            youtubeQuery: '高校化学 炎色反応 実験',
+            points: [
+              '語呂合わせ：「リアカー無きK村、動力借りるとするもくれない馬力」',
+              'Li(赤)、Na(黄)、K(赤紫)、Cu(青緑)、Ca(橙赤)、Ba(黄緑) をしっかり覚えよう！'
+            ],
+            steps: [
+              { icon: '🧼', title: 'ステップ1：白金耳の洗浄', desc: '白金耳を濃塩酸で洗い、ガスバーナーで空焼きします。' },
+              { icon: '💧', title: 'ステップ2：試料をつける', desc: '調べたい金属イオンの水溶液を先端につけます。' },
+              { icon: '🔥', title: 'ステップ3：外炎に入れる', desc: '青い炎に入れると元素ごとに決まった色に発光します！' }
+            ]
+          },
+          {
+            id: 'chem_precip',
+            name: '<ruby>金<rt>きん</rt>属<rt>ぞく</rt>イオンの<rt>沈<rt>ちん</rt>殿<rt>でん</rt></ruby>と<ruby>錯<rt>さく</rt></ruby>イオン',
+            summary: 'Ag+・Cu2+・Fe3+ に試薬を加えて、沈殿の色や再溶解（錯イオン）を確かめる実験。',
+            playable: true,
+            simType: 'precipitate',
+            equipmentIds: ['test_tube', 'pipette'],
+            youtubeQuery: '高校化学 金属イオン 沈殿 実験',
+            points: [
+              'Ag+ は NH3水過剰で無色に溶け、Cu2+ は深青色の錯イオンになって溶ける！',
+              'Fe3+ の赤褐色沈殿 Fe(OH)3 は、NH3水過剰でも溶けない！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：金属イオンを用意', desc: '試験管に金属イオン水溶液を入れます。' },
+              { icon: '💧', title: 'ステップ2：少量のアンモニア水', desc: '特有の色をした水酸化物や酸化物の沈殿ができます。' },
+              { icon: '✨', title: 'ステップ3：過剰に加える', desc: 'Ag+ や Cu2+ は錯イオンを作って再び溶けます！' }
+            ]
+          },
+          {
+            id: 'chem_gas',
+            name: '<ruby>気<rt>き</rt>体<rt>たい</rt>の<rt>発<rt>はっ</rt>生<rt>せい</rt>と<rt>捕<rt>ほ</rt>集<rt>しゅう</rt>法<rt>ほう</rt></ruby>',
+            summary: 'アンモニア・塩素・水素・酸素などの発生法と、水に溶けやすさ・密度による捕集法を確かめる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '代表的な気体の発生と捕集法を順番に確認しよう！',
+              stages: [
+                { label: '⬆️ アンモニア（NH4Cl＋Ca(OH)2 加熱）', visual: '💨⬆️', bg: 'rgba(244,114,182,0.35)', text: '水に極めてよく溶け、空気より軽いため「上方置換法」で集める！' },
+                { label: '⬇️ 塩素（MnO2＋濃塩酸 加熱）', visual: '🟨⬇️', bg: 'rgba(250,204,21,0.45)', text: '黄緑色の有毒気体！水に少し溶けて空気より重いため「下方置換法」で集める！' },
+                { label: '🫧 水素・酸素（水上置換）', visual: '🫧', bg: 'rgba(56,189,248,0.45)', text: '水に溶けにくいため、純度よく集められる「水上置換法」を使う！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'gas_burner'],
+            youtubeQuery: '高校化学 気体の発生 捕集法 実験',
+            points: [
+              '上方置換＝アンモニアのみ！',
+              '濃硫酸で乾燥できない気体＝NH3（酸と塩基で中和）、H2S（酸化還元）。'
+            ],
+            steps: [
+              { icon: '⬆️', title: 'ステップ1：上方置換（NH3）', desc: '空気より軽く水に溶けやすいアンモニアは上方置換で集めます。' },
+              { icon: '⬇️', title: 'ステップ2：下方置換（Cl2・HCl）', desc: '水に溶けやすく空気より重い気体は下方置換で集めます。' },
+              { icon: '🫧', title: 'ステップ3：水上置換（H2・O2）', desc: '水に溶けにくい気体は水上置換で純度よく捕集します。' }
+            ]
+          },
+          {
+            id: 'chem_halogen',
+            name: 'ハロゲンの<ruby>酸<rt>さん</rt>化<rt>か</rt>力<rt>りょく</rt></ruby>比較',
+            summary: '塩素水・臭素水・ヨウ素水とハロゲン化物イオンの反応から酸化力の強弱を確かめる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'KBr水溶液とKI水溶液に塩素水を加えて、酸化力の強さ（Cl2 ＞ Br2 ＞ I2）を確かめよう！',
+              stages: [
+                { label: '🧪 KBr(無色) に 塩素水(Cl2) を加える', visual: '🟠', bg: 'rgba(249,115,22,0.55)', text: 'Br2 が遊離して赤褐色になった！（Cl2 は Br2 より酸化力が強い）' },
+                { label: '🧪 KI(無色) に 臭素水(Br2) を加える', visual: '🟣', bg: 'rgba(126,34,206,0.55)', text: 'I2 が遊離し、ヘキサン層が赤紫色に！（Br2 は I2 より酸化力が強い）' },
+                { label: '❌ NaCl に ヨウ素水(I2) を加える', visual: '⚪', bg: 'rgba(226,232,240,0.45)', text: '反応しない！酸化力は F2 ＞ Cl2 ＞ Br2 ＞ I2 の順です。' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'pipette'],
+            youtubeQuery: '高校化学 ハロゲン 酸化力 実験',
+            points: [
+              '酸化力の強さ：F2 ＞ Cl2 ＞ Br2 ＞ I2（周期表の上ほど強い！）',
+              '強い単体が弱いイオンから電子を奪って単体を追い出す。'
+            ],
+            steps: [
+              { icon: '🟠', title: 'ステップ1：Cl2 ＋ 2Br-', desc: '塩素水を加えると臭素（Br2）が遊離して赤褐色になります。' },
+              { icon: '🟣', title: 'ステップ2：Br2 ＋ 2I-', desc: '臭素水を加えるとヨウ素（I2）が遊離し、デンプンで青紫色・ヘキサンで赤紫色になります。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'chem_org',
+        name: '<ruby>有<rt>ゆう</rt>機<rt>き</rt>化<rt>か</rt>学<rt>がく</rt></ruby>',
+        experiments: [
+          {
+            id: 'chem_silver',
+            name: '<ruby>銀<rt>ぎん</rt>鏡<rt>きょう</rt>反<rt>はん</rt>応<rt>のう</rt></ruby>・フェーリング反応',
+            summary: 'アルデヒドの還元性を利用し、試験管の内側に銀の鏡をつくる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'アンモニア性硝酸銀水溶液にアルデヒドを入れて湯浴で温めよう！',
+              stages: [
+                { label: '🧪 アンモニア性硝酸銀を作る', visual: '💧', bg: 'rgba(226,232,240,0.45)', text: '硝酸銀にアンモニア水を適量加えて無色透明の錯イオンにします。' },
+                { label: '🌡️ アルデヒドを入れて湯浴で温める', visual: '✨🪞', bg: 'rgba(148,163,184,0.75)', text: '試験管の壁にピカピカの「銀鏡（Ag）」が析出！還元性の証拠です！' },
+                { label: '🔴 フェーリング液で比較実験', visual: '🧱', bg: 'rgba(220,38,38,0.65)', text: 'フェーリング液を温めると、酸化銅(I) Cu2O の「赤色沈殿」が生じる！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'water_bath'],
+            youtubeQuery: '高校化学 銀鏡反応 実験',
+            points: [
+              'アルデヒド基（-CHO）やギ酸（HCOOH）が還元性を示す！',
+              '銀鏡反応＝銀(Ag)析出、フェーリング反応＝Cu2O(赤色沈殿)。'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：試薬の調整', desc: '硝酸銀水溶液にアンモニア水を加え、一度できた沈殿を溶かします。' },
+              { icon: '🪞', title: 'ステップ2：銀鏡の析出', desc: 'アルデヒドを加えてお湯で温めると試験管が鏡のようになります！' }
+            ]
+          },
+          {
+            id: 'chem_ester',
+            name: 'エステルの<ruby>合<rt>ごう</rt>成<rt>せい</rt></ruby>（酢酸エチル）',
+            summary: '酢酸とエタノールに濃硫酸を加えて加熱し、甘い香りのエステルを合成する実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '濃硫酸（触媒・脱水剤）を加えて温め、甘い香りのエステルを取り出そう！',
+              stages: [
+                { label: '💧 酢酸＋エタノール＋濃硫酸を混ぜる', visual: '🧪', bg: 'rgba(226,232,240,0.4)', text: '濃硫酸は反応を速める触媒＆水を奪う脱水剤として入れます。' },
+                { label: '🌡️ 湯浴で温める', visual: '🍏✨', bg: 'rgba(254,240,138,0.5)', text: 'フルーツのような甘い香り（酢酸エチル）が発生！' },
+                { label: '🌊 水（飽和NaCl水）に注ぐ', visual: '🫧', bg: 'rgba(186,230,253,0.45)', text: '水に溶けにくく軽い酢酸エチルが、上の層に油のように分離した！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'water_bath', 'pipette'],
+            youtubeQuery: '高校化学 エステル化 酢酸エチル 実験',
+            points: [
+              'カルボン酸 ＋ アルコール ⇌ エステル ＋ 水（可逆反応）',
+              'エステルは水より軽く、水に溶けにくいので上層に分離する！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：混合', desc: '酢酸・エタノール・濃硫酸を試験管に入れます。' },
+              { icon: '🍏', title: 'ステップ2：加熱と分離', desc: '湯浴で温めると甘い香りの酢酸エチルが生じ、水の上層に浮かびます。' }
+            ]
+          },
+          {
+            id: 'chem_iodoform',
+            name: 'ヨードホルム<ruby>反<rt>はん</rt>応<rt>のう</rt></ruby>',
+            summary: '特定の構造を持つアルコールやケトンにヨウ素とNaOHを加えて黄色沈殿をつくる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'エタノールとメタノールを比較して、ヨードホルム（CHI3）の黄色沈殿ができるか確かめよう！',
+              stages: [
+                { label: '🧪 エタノール ＋ I2 ＋ NaOH(温める)', visual: '🟡', bg: 'rgba(250,204,21,0.65)', text: '特異臭のある「黄色沈殿（CHI3：ヨードホルム）」が発生！' },
+                { label: '🧪 アセトン ＋ I2 ＋ NaOH(温める)', visual: '🟡', bg: 'rgba(250,204,21,0.65)', text: 'アセチル基（CH3-CO-）があるのでこちらも黄色沈殿！' },
+                { label: '🧪 メタノール ＋ I2 ＋ NaOH(温める)', visual: '⚪', bg: 'rgba(226,232,240,0.4)', text: 'CH3-CH(OH)- 構造がないため反応せず無色のまま！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'water_bath'],
+            youtubeQuery: '高校化学 ヨードホルム反応 実験',
+            points: [
+              '陽性になるのは「CH3-CO-」または「CH3-CH(OH)-」を持つ物質だけ！',
+              'エタノール・アセトアルデヒド・アセトン・2-プロパノールは陽性！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：試薬を加える', desc: '試料にヨウ素と水酸化ナトリウム水溶液を加えます。' },
+              { icon: '🟡', title: 'ステップ2：黄色沈殿', desc: '特有の構造があればヨードホルム（CHI3）の黄色沈殿ができます。' }
+            ]
+          },
+          {
+            id: 'chem_azo',
+            name: 'アニリンの<ruby>ジ<rt>じ</rt>ア<rt>あ</rt>ゾ<rt>ぞ</rt>化<rt>か</rt></ruby>とカップリング',
+            summary: 'アニリンを氷冷しながらジアゾ化し、鮮やかな赤橙色のアゾ染料を合成する実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '温度管理（5℃以下）に気をつけながらアゾ染料を合成しよう！',
+              stages: [
+                { label: '❄️ アニリン塩酸塩＋NaNO2を5℃以下で反応', visual: '🧊', bg: 'rgba(186,230,253,0.45)', text: '塩化ベンゼンジアゾニウム（無色）ができた！※温めるとN2が出て分解するので氷冷必須！' },
+                { label: '🎨 ナトリウムフェノキシド（または2-ナフトール）を混合', visual: '🔴🟠', bg: 'rgba(234,88,12,0.75)', text: '鮮やかな赤橙色の「アゾ染料（-N=N-）」が一瞬で生成した！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'beaker'],
+            youtubeQuery: '高校化学 ジアゾ化 カップリング 実験',
+            points: [
+              'ジアゾ化は必ず「氷冷（5℃以下）」で行う！（室温だとフェノールに分解）',
+              'アゾ基（-N=N-）が鮮やかな色の原因！'
+            ],
+            steps: [
+              { icon: '🧊', title: 'ステップ1：氷冷してジアゾ化', desc: '5℃以下に冷やしながら塩化ベンゼンジアゾニウムを作ります。' },
+              { icon: '🎨', title: 'ステップ2：カップリング', desc: 'ナトリウムフェノキシドなどを加えると赤橙色のアゾ染料ができます！' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'chem_polymer',
+        name: '<ruby>高<rt>こう</rt>分<rt>ぶん</rt>子<rt>し</rt>化<rt>か</rt>合<rt>ごう</rt>物<rt>ぶつ</rt></ruby>',
+        experiments: [
+          {
+            id: 'chem_protein',
+            name: 'タンパク質の<ruby>検<rt>けん</rt>出<rt>しゅつ</rt>反<rt>はん</rt>応<rt>のう</rt></ruby>',
+            summary: '卵白水溶液に様々な試薬を加え、ビウレット・キサントプロテイン・ニンヒドリン反応を確かめる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '3つの有名な呈色反応を試して、何色に変わるか確認しよう！',
+              stages: [
+                { label: '🟣 ビウレット反応（NaOH＋CuSO4）', visual: '🟣', bg: 'rgba(168,85,247,0.65)', text: '赤紫色になった！ペプチド結合が2個以上ある（トリペプチド以上）証拠！' },
+                { label: '🟠 キサントプロテイン反応（濃HNO3加熱→NH3）', visual: '🟡➡️🟠', bg: 'rgba(249,115,22,0.65)', text: '黄色→アンモニア水で橙黄色に！ベンゼン環をもつアミノ酸の証拠！' },
+                { label: '🔵 ニンヒドリン反応（ニンヒドリン＋加熱）', visual: '🔵🟣', bg: 'rgba(99,102,241,0.65)', text: '青紫色になった！アミノ基（-NH2）をもつアミノ酸・タンパク質の証拠！' }
+              ]
+            },
+            equipmentIds: ['test_tube', 'pipette'],
+            youtubeQuery: '高校化学 タンパク質 検出反応 実験',
+            points: [
+              'ビウレット＝赤紫（トリペプチド以上）、キサント＝黄→橙（ベンゼン環）、ニンヒドリン＝青紫（アミノ基）。',
+              'システイン（Sを含む）はNaOHと酢酸鉛(II)で黒色沈殿（PbS）を生じる。'
+            ],
+            steps: [
+              { icon: '🟣', title: 'ステップ1：ビウレット反応', desc: '塩基性でCuSO4を加えると赤紫色になります。' },
+              { icon: '🟠', title: 'ステップ2：キサントプロテイン反応', desc: '濃硝酸で黄色、さらに塩基性にして橙黄色になります。' }
+            ]
+          },
+          {
+            id: 'chem_nylon',
+            name: 'ナイロン66の<ruby>界<rt>かい</rt>面<rt>めん</rt>重<rt>じゅう</rt>縮<rt>しゅく</rt>合<rt>ごう</rt></ruby>',
+            summary: '混ざり合わない2つの液体（水層と有機層）の境界面からナイロン糸を引き上げる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '2つの溶液を静かに重ねて、境界面にできた膜をピンセットで引き上げよう！',
+              stages: [
+                { label: '🧪 ヘキサメチレンジアミン水溶液を入れる', visual: '💧', bg: 'rgba(186,230,253,0.45)', text: '下層に水溶性のヘキサメチレンジアミン（＋NaOH）を用意。' },
+                { label: '🌊 アジピン酸ジクロリドの有機溶液を注ぐ', visual: '🎞️', bg: 'rgba(226,232,240,0.55)', text: '2層の境界面（界面）に白いナイロンの膜ができた！' },
+                { label: '🥢 ピンセットで引き上げる！', visual: '🧵✨', bg: 'rgba(191,219,254,0.6)', text: '境界面で次々と重合が起こり、長いナイロン66の糸がどんどん巻き取れる！' }
+              ]
+            },
+            equipmentIds: ['beaker'],
+            youtubeQuery: '高校化学 ナイロン66 界面重縮合 実験',
+            points: [
+              'C6個のアミン ＋ C6個のジカルボン酸塩化物 → ナイロン66（アミド結合）！',
+              '加熱不要・室温で2液の境界面から連続で糸を作れるのが特徴。'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：2層を作る', desc: '水層と有機層を静かに重ねます。' },
+              { icon: '🧵', title: 'ステップ2：糸を巻き取る', desc: '界面にできた薄膜をつまんで引き上げると連続して糸ができます。' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  // =====================================
+  // 生物（Biology）
+  // =====================================
+  {
+    id: 'bio',
+    name: '生物',
+    ruby: '<ruby>生<rt>せい</rt>物<rt>ぶつ</rt></ruby>',
+    icon: '🔬',
+    desc: '顕微鏡や細胞・代謝のミクロな世界を観察しよう！',
+    units: [
+      {
+        id: 'bio_cell',
+        name: '<ruby>細<rt>さい</rt>胞<rt>ぼう</rt></ruby>と<ruby>代<rt>たい</rt>謝<rt>しゃ</rt></ruby>',
+        experiments: [
+          {
+            id: 'bio_mitosis',
+            name: 'タマネギの<ruby>体<rt>たい</rt>細<rt>さい</rt>胞<rt>ぼう</rt>分<rt>ぶん</rt>裂<rt>れつ</rt></ruby>観察',
+            summary: 'タマネギの根の先端を処理し、顕微鏡の倍率とピントを合わせて染色体を観察する実験。',
+            playable: true,
+            simType: 'microscope',
+            equipmentIds: ['microscope', 'pipette'],
+            youtubeQuery: '高校生物 体細胞分裂 観察 実験',
+            points: [
+              '手順：「固定（エタノール＋酢酸）」→「解離（希塩酸）」→「染色（酢酸オルセイン）」→「押しつぶし」',
+              '観察は低倍率（全体を探す）→ 高倍率（細かい部分を観察）の順！'
+            ],
+            steps: [
+              { icon: '🧅', title: 'ステップ1：固定と解離', desc: '固定液で細胞を殺して状態を保ち、希塩酸で細胞どうしを離れやすくします。' },
+              { icon: '🔴', title: 'ステップ2：染色と押しつぶし', desc: '酢酸オルセインで核や染色体を赤く染め、垂直に押しつぶします。' },
+              { icon: '🔬', title: 'ステップ3：顕微鏡で観察', desc: '低倍率から高倍率へ切り替え、ピントを合わせて染色体を観察します！' }
+            ]
+          },
+          {
+            id: 'bio_plasmolysis',
+            name: 'オオカナダモの<ruby>原<rt>げん</rt>形<rt>けい</rt>質<rt>しつ</rt>分<rt>ぶん</rt>離<rt>り</rt></ruby>',
+            summary: '外液のスクロース濃度を変えて、植物細胞の細胞膜が細胞壁から離れる様子を観察する実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '外液のスクロース濃度（％）を上げて、原形質分離が起こる様子を観察しよう！',
+              label: '外液のスクロース濃度（％）',
+              min: 0,
+              max: 20,
+              initial: 2,
+              unit: '%',
+              targetCheck: (v) => v >= 15,
+              describe: (v) => {
+                if (v < 6) return { bg: 'rgba(134, 239, 172, 0.55)', icon: '🟩', status: '膨圧でパンパン！（低張液：水が細胞内へ流入）' };
+                if (v < 11) return { bg: 'rgba(167, 243, 208, 0.45)', icon: '🌿', status: '限界原形質分離付近（細胞内外の浸透圧がほぼ等しい）' };
+                return { bg: 'rgba(254, 240, 138, 0.5)', icon: '🤏', status: '縮んだ！（高張液：水が外に出て細胞膜が細胞壁から離れる＝原形質分離！）' };
+              }
+            },
+            equipmentIds: ['microscope', 'pipette'],
+            youtubeQuery: '高校生物 原形質分離 オオカナダモ 実験',
+            points: [
+              '動物細胞（赤血球など）は細胞壁がないため、低張液では「破裂（溶血）」する。',
+              '植物細胞は丈夫な「細胞壁」があるため破裂せず、高張液で「原形質分離」を起こす！'
+            ],
+            steps: [
+              { icon: '🌿', title: 'ステップ1：通常状態', desc: '水の中では細胞膜が細胞壁にぴったり押し付けられています。' },
+              { icon: '💧', title: 'ステップ2：濃いスクロース液', desc: '細胞から水が奪われて細胞膜が縮み、細胞壁から離れます（原形質分離）。' }
+            ]
+          },
+          {
+            id: 'bio_catalase',
+            name: 'カタラーゼの<ruby>酵<rt>こう</rt>素<rt>そ</rt></ruby>実験',
+            summary: '肝臓片（カタラーゼ）と過酸化水素水の反応から、酵素の温度特性を調べる実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '反応温度スライダーを動かして、最も泡（酸素）がたくさん出る最適温度と失活温度を見つけよう！',
+              label: '反応温度（℃）',
+              min: 0,
+              max: 90,
+              initial: 10,
+              unit: '℃',
+              targetCheck: (v) => v >= 75,
+              describe: (v) => {
+                if (v < 20) return { bg: 'rgba(186, 230, 253, 0.4)', icon: '🫧', status: '反応ゆっくり（低温のため分子運動が小さい）' };
+                if (v <= 45) return { bg: 'rgba(74, 222, 128, 0.55)', icon: '🫧🫧🫧', status: '激しく酸素発生！！（最適温度：35〜40℃付近）' };
+                if (v < 65) return { bg: 'rgba(251, 191, 36, 0.45)', icon: '🫧', status: '反応が弱まってきた（高温で立体構造が崩れ始めている）' };
+                return { bg: 'rgba(239, 68, 68, 0.35)', icon: '❌', status: '反応停止！（60〜70℃以上でタンパク質が変性し「失活」した！）' };
+              }
+            },
+            equipmentIds: ['test_tube', 'water_bath'],
+            youtubeQuery: '高校生物 カタラーゼ 過酸化水素 実験',
+            points: [
+              '酵素はタンパク質でできているため、高温で変性して「失活」する。',
+              '無機触媒（二酸化マンガン MnO2）は煮沸しても失活しない！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：低温〜最適温度', desc: '35〜40℃付近で酵素カタラーゼの働きが最大になります。' },
+              { icon: '🔥', title: 'ステップ2：高温で失活', desc: '煮沸するとタンパク質が変性し、過酸化水素を分解できなくなります。' }
+            ]
+          },
+          {
+            id: 'bio_ferment',
+            name: '酵母菌のアルコール<ruby>発<rt>はっ</rt>酵<rt>こう</rt></ruby>',
+            summary: 'キューネ発酵管を使い、無酸素条件下で酵母菌がグルコースからCO2とエタノールを作る実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'キューネ発酵管に酵母菌とグルコース液を入れ、発生する気体の正体を確かめよう！',
+              stages: [
+                { label: '🧪 酵母菌＋グルコース液を盲管部に満たす', visual: '🧪', bg: 'rgba(254,240,138,0.45)', text: '酸素を遮断した状態で35℃くらいに保温します。' },
+                { label: '🫧 気体が溜まってきた！', visual: '🫧⬆️', bg: 'rgba(253,224,71,0.55)', text: '盲管部の上にどんどん気体が溜まった！' },
+                { label: '💧 水酸化ナトリウム(NaOH)を加えて振る', visual: '✨', bg: 'rgba(134,239,172,0.55)', text: '気体がすべて吸収された！発生した気体は「二酸化炭素（CO2）」と確定！' }
+              ]
+            },
+            equipmentIds: ['fermentation_tube', 'pipette'],
+            youtubeQuery: '高校生物 キューネ発酵管 アルコール発酵 実験',
+            points: [
+              'アルコール発酵：C6H12O6 → 2C2H5OH ＋ 2CO2 ＋ 2ATP',
+              'NaOH水溶液で気体が吸収される＝CO2、残った液のにおい＝エタノール！'
+            ],
+            steps: [
+              { icon: '🧪', title: 'ステップ1：発酵開始', desc: 'キューネ発酵管に酵母菌液とグルコースを入れて温めます。' },
+              { icon: '🫧', title: 'ステップ2：CO2の確認', desc: '溜まった気体はNaOH水溶液に完全に吸収されます。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'bio_gene',
+        name: '<ruby>遺<rt>い</rt>伝<rt>でん</rt></ruby>・<ruby>分<rt>ぶん</rt>子<rt>し</rt></ruby>',
+        experiments: [
+          {
+            id: 'bio_dna',
+            name: 'ブロッコリーからのDNA<ruby>抽<rt>ちゅう</rt>出<rt>しゅつ</rt></ruby>',
+            summary: '台所用洗剤と食塩、冷エタノールを使って植物の細胞からDNAを目に見える形で取り出す実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '3つのステップで、ブロッコリーの花芽から白い糸状のDNAを取り出そう！',
+              stages: [
+                { label: '🥣 ブロッコリーをすりつぶし、洗剤＋食塩水を加える', visual: '🥦', bg: 'rgba(74,222,128,0.45)', text: '洗剤が「細胞膜・核膜（脂質）」を溶かし、食塩水がDNAを溶けやすくします！' },
+                { label: '🧻 ろ過して緑の液を取り出す', visual: '🧪', bg: 'rgba(34,197,94,0.45)', text: '細胞のかすを取り除き、DNAが溶けたろ液を得ました。' },
+                { label: '🧊 冷やしたエタノールを静かに注ぐ', visual: '🧬✨', bg: 'rgba(186,230,253,0.5)', text: 'DNAはエタノールに溶けないため、境界面に白い綿・糸状のDNAが浮かび上がった！' }
+              ]
+            },
+            equipmentIds: ['beaker', 'pipette'],
+            youtubeQuery: '高校生物 DNA抽出 ブロッコリー 実験',
+            points: [
+              '台所用洗剤（界面活性剤）の役割：細胞膜や核膜の脂質二重層を破壊する！',
+              '冷エタノールの役割：DNAを水に溶けた状態から析出させる（DNAはエタノールに不溶）。'
+            ],
+            steps: [
+              { icon: '🥦', title: 'ステップ1：膜の破壊', desc: '洗剤で細胞膜と核膜を溶かしてDNAを溶液中に出します。' },
+              { icon: '🧬', title: 'ステップ2：エタノールで析出', desc: '冷エタノールを静かに注ぐと白い糸状のDNAが現れます！' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'bio_plant',
+        name: '<ruby>植<rt>しょく</rt>物<rt>ぶつ</rt></ruby>の<ruby>環<rt>かん</rt>境<rt>きょう</rt>応<rt>おう</rt>答<rt>とう</rt></ruby>・<ruby>生<rt>せい</rt>態<rt>たい</rt></ruby>',
+        experiments: [
+          {
+            id: 'bio_chromato',
+            name: '<ruby>光<rt>こう</rt>合<rt>ごう</rt>成<rt>せい</rt>色<rt>しき</rt>素<rt>そ</rt></ruby>のクロマトグラフィー',
+            summary: 'ホウレンソウの葉から抽出した色素を、展開液を用いて4種類の色素に分離する実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'ろ紙の原点に色素をつけ、展開液に浸して色素が分離する順番を確認しよう！',
+              stages: [
+                { label: '🌿 原点に色素をつけて乾かす', visual: '📄', bg: 'rgba(134,239,172,0.4)', text: 'ろ紙の下から2cmの位置に、ホウレンソウの濃い緑色の色素を線状に塗りました。' },
+                { label: '💧 展開液に浸して上昇させる', visual: '⬆️', bg: 'rgba(186,230,253,0.4)', text: '展開液がろ紙を吸い上がり、色素を溶かしながら上へ移動しています！' },
+                { label: '🌈 4色に分離完了！（上から確認）', visual: '🟠🟡🟢🩵', bg: 'rgba(254,249,195,0.6)', text: '上から「カロテン(橙) → キサントフィル(黄) → クロロフィルa(青緑) → クロロフィルb(黄緑)」に分かれた！' }
+              ]
+            },
+            equipmentIds: ['chromato_jar'],
+            youtubeQuery: '高校生物 ペーパークロマトグラフィー 光合成色素 実験',
+            points: [
+              '移動しやすい順（上→下）：カロテン ＞ キサントフィル ＞ クロロフィルa ＞ クロロフィルb',
+              '色素の「展開液への溶けやすさ」と「ろ紙への吸着しやすさ」の差で分離される！'
+            ],
+            steps: [
+              { icon: '🌿', title: 'ステップ1：原点に塗布', desc: 'ろ紙の下端に抽出液を何度も塗って乾かします。' },
+              { icon: '🌈', title: 'ステップ2：4色に分離', desc: '展開液に浸すと、移動速度の違いで4つの色素が帯状に分かれます！' }
+            ]
+          },
+          {
+            id: 'bio_stomata',
+            name: '<ruby>気<rt>き</rt>孔<rt>こう</rt></ruby>の<ruby>開<rt>かい</rt>閉<rt>へい</rt></ruby>と<ruby>蒸<rt>じょう</rt>散<rt>さん</rt></ruby>の観察',
+            summary: '葉の裏側の表皮をはぎ取り、2つの孔辺細胞がつくる気孔の開閉を観察する実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '光や水分条件を変えたときの「孔辺細胞」と「気孔」の動きを確認しよう！',
+              stages: [
+                { label: '☀️ 光を当てる（K+が孔辺細胞に流入）', visual: '👄✨', bg: 'rgba(134,239,172,0.5)', text: '水が流入して孔辺細胞が膨らみ、外側に反り返って「気孔が開いた」！' },
+                { label: '🌵 乾燥状態（アブシシン酸が働く）', visual: '😑', bg: 'rgba(253,230,138,0.5)', text: '水が抜けて孔辺細胞がしぼみ、「気孔が閉じた」！蒸散を防いでいます。' }
+              ]
+            },
+            equipmentIds: ['microscope'],
+            youtubeQuery: '高校生物 気孔 孔辺細胞 観察 実験',
+            points: [
+              '気孔は「孔辺細胞」の吸水（膨圧上昇）で開き、脱水で閉じる。',
+              '乾燥ストレス時は植物ホルモン「アブシシン酸」が気孔を閉じる！'
+            ],
+            steps: [
+              { icon: '☀️', title: 'ステップ1：光照射で開く', desc: '光合成やK+の流入で浸透圧が上がり、吸水して気孔が開きます。' },
+              { icon: '🌵', title: 'ステップ2：乾燥で閉じる', desc: 'アブシシン酸の働きでK+と水が流出し、気孔が閉じます。' }
+            ]
+          },
+          {
+            id: 'bio_photosynth',
+            name: '光の強さと<ruby>光<rt>こう</rt>合<rt>ごう</rt>成<rt>せい</rt></ruby>速度',
+            summary: 'オオカナダモに当てる光の強さを変え、発生する酸素の気泡数から補償点・光飽和点を調べる実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: 'ライトの強さを調整して、「補償点」と「光飽和点」の違いを体感しよう！',
+              label: '光の強さ（相対値）',
+              min: 0,
+              max: 100,
+              initial: 0,
+              unit: '%',
+              targetCheck: (v) => v >= 80,
+              describe: (v) => {
+                if (v < 15) return { bg: 'rgba(30, 41, 59, 0.5)', icon: '🌑', status: '呼吸のみ（CO2を吸収せず放出している）' };
+                if (v <= 25) return { bg: 'rgba(250, 204, 21, 0.4)', icon: '⚖️', status: '【補償点】光合成速度 ＝ 呼吸速度（見かけのCO2吸収量 0！）' };
+                if (v < 75) return { bg: 'rgba(74, 222, 128, 0.5)', icon: '🫧🫧', status: '光が強いほど酸素の泡が増えている！（光が限定要因）' };
+                return { bg: 'rgba(16, 185, 129, 0.65)', icon: '🫧🫧🫧', status: '【光飽和点】これ以上光を強くしても光合成速度は頭打ち！' };
+              }
+            },
+            equipmentIds: ['beaker'],
+            youtubeQuery: '高校生物 光合成速度 オオカナダモ 実験',
+            points: [
+              '補償点：見かけの光合成速度が0（真の光合成速度＝呼吸速度）になる光の強さ。',
+              '陰生植物は陽生植物よりも「補償点」「光飽和点」が低い！'
+            ],
+            steps: [
+              { icon: '⚖️', title: 'ステップ1：補償点', desc: '光合成で出すO2と呼吸で使うO2が釣り合う点です。' },
+              { icon: '☀️', title: 'ステップ2：光飽和点', desc: '十分強い光ではCO2濃度や温度が律速になり速度が一定になります。' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  // =====================================
+  // 物理（Physics）
+  // =====================================
+  {
+    id: 'phys',
+    name: '物理',
+    ruby: '<ruby>物<rt>ぶつ</rt>理<rt>り</rt></ruby>',
+    icon: '⚡',
+    desc: '力学・音・光・電気と磁石の法則を体感しよう！',
+    units: [
+      {
+        id: 'phys_mech',
+        name: '<ruby>力<rt>りき</rt>学<rt>がく</rt></ruby>（運動・振り子・衝突）',
+        experiments: [
+          {
+            id: 'phys_cart',
+            name: '<ruby>記<rt>き</rt>録<rt>ろく</rt></ruby>タイマーと<ruby>力<rt>りき</rt>学<rt>がく</rt>台<rt>だい</rt>車<rt>しゃ</rt></ruby>',
+            summary: '斜面を下る台車に記録テープをつけ、打点の間隔から加速度を求める実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '斜面の角度（°）を変えて、台車の加速度 a ＝ g sinθ の変化を確かめよう！',
+              label: '斜面の角度 θ（度）',
+              min: 5,
+              max: 45,
+              initial: 15,
+              unit: '°',
+              targetCheck: (v) => v >= 30,
+              describe: (v) => {
+                const a = (9.8 * Math.sin((v * Math.PI) / 180)).toFixed(2);
+                return {
+                  bg: 'rgba(251, 191, 36, 0.35)',
+                  icon: '🛒💨',
+                  status: `加速度 a = ${a} m/s²（打点間隔が毎回同じ割合で広がっていく＝等加速度直線運動！）`
+                };
+              }
+            },
+            equipmentIds: ['recording_timer'],
+            youtubeQuery: '高校物理 記録タイマー 力学台車 実験',
+            points: [
+              '50Hz地域は1打点 0.02秒（5打点ごとに切ると 0.1秒間隔）、60Hz地域は 1/60秒。',
+              'テープの長さを並べたグラフの傾きが「加速度 a」になる！'
+            ],
+            steps: [
+              { icon: '🛒', title: 'ステップ1：斜面を下る', desc: '台車を離すと重力成分 mgsinθ によって等加速度直線運動します。' },
+              { icon: '📏', title: 'ステップ2：テープの解析', desc: '0.1秒ごとのテープ長が一定の割合で増えることから加速度を求めます。' }
+            ]
+          },
+          {
+            id: 'phys_pendulum',
+            name: '<ruby>単<rt>たん</rt>振<rt>ふ</rt>り子<rt>こ</rt></ruby>の<ruby>周<rt>しゅう</rt>期<rt>き</rt></ruby>測定',
+            summary: '糸の長さやおもりの重さを変えて、振り子が1往復する時間（周期）を測る実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '糸の長さ l を変えて、周期 T = 2π√(l/g) がどう変わるか確かめよう（4倍の長さで周期は2倍！）。',
+              label: '糸の長さ l（m）',
+              min: 0.25,
+              max: 2.0,
+              initial: 1.0,
+              unit: 'm',
+              targetCheck: (v) => v >= 1.5,
+              describe: (v) => {
+                const t = (2 * Math.PI * Math.sqrt(v / 9.8)).toFixed(2);
+                return {
+                  bg: 'rgba(186, 230, 253, 0.4)',
+                  icon: '🕰️',
+                  status: `周期 T = ${t} 秒（※おもりの質量や振れ角が小さいときは関係なく、糸の長さ l のみで決まる！）`
+                };
+              }
+            },
+            equipmentIds: ['stopwatch'],
+            youtubeQuery: '高校物理 単振り子 周期 実験',
+            points: [
+              '周期 T = 2π√(l / g) ：おもりの「質量」には無関係！',
+              '糸の長さ l を4倍にすると、周期 T は 2倍になる！'
+            ],
+            steps: [
+              { icon: '🕰️', title: 'ステップ1：10往復を測る', desc: '測定誤差を減らすため10往復の時間を測って10で割ります。' },
+              { icon: '📏', title: 'ステップ2：長さとの関係', desc: '糸が長いほど周期が長くなり、√l に比例します。' }
+            ]
+          },
+          {
+            id: 'phys_collision',
+            name: '2台車の<ruby>衝<rt>しょう</rt>突<rt>とつ</rt></ruby>と<ruby>運<rt>うん</rt>動<rt>どう</rt>量<rt>りょう</rt></ruby>保存',
+            summary: '同じ質量の台車どうしを衝突（弾性衝突・合体）させて運動量の和が変わらないことを確かめる実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: '台車Aを走らせて静止している台車Bにぶつけ、衝突後の動きを観察しよう！',
+              stages: [
+                { label: '🛒 同じ質量の台車を「弾性衝突」させる', visual: '💥🛒➡️', bg: 'rgba(56,189,248,0.35)', text: '台車Aはピタッと止まり、台車Bが元のAと同じ速さで走り出した！（運動量とエネルギーが完全保存！）' },
+                { label: '🧲 マジックテープで「合体（完全非弾性衝突）」させる', visual: '🛒➕🛒➡️', bg: 'rgba(251,191,36,0.4)', text: '質量が2倍になったため、速さは元の 1/2 になった！運動量の和 mv は保存している！' }
+              ]
+            },
+            equipmentIds: ['recording_timer'],
+            youtubeQuery: '高校物理 運動量保存則 台車 衝突 実験',
+            points: [
+              '外力が働かなければ、衝突の前後で「運動量の和（m1v1 + m2v2）」は常に保存！',
+              '合体（e=0）では運動エネルギーの一部が熱や音に変わって減少する。'
+            ],
+            steps: [
+              { icon: '💥', title: 'ステップ1：弾性衝突', desc: '同質量なら衝突した台車が止まり、もう一方に速度がそのまま移ります。' },
+              { icon: '🧲', title: 'ステップ2：合体', desc: '合体すると質量が2倍になり、速度は半分になります。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'phys_wave',
+        name: '<ruby>波<rt>は</rt>動<rt>どう</rt></ruby>（音と光）',
+        experiments: [
+          {
+            id: 'phys_resonance',
+            name: '<ruby>気<rt>き</rt>柱<rt>ちゅう</rt>の<rt>共<rt>きょう</rt>鳴<rt>めい</rt></ruby>実験',
+            summary: '音叉を鳴らして管内の水面を上下させ、音が大きく響く共鳴点から音速を求める実験。',
+            playable: true,
+            simType: 'resonance',
+            equipmentIds: ['tuning_fork'],
+            youtubeQuery: '高校物理 気柱共鳴 実験',
+            points: [
+              '閉管では水面が「節」、管口付近が「腹」になる！',
+              '1回目と2回目の共鳴位置の差（l2 - l1）がちょうど半波長（λ/2）になる！'
+            ],
+            steps: [
+              { icon: '🔔', title: 'ステップ1：おんさを鳴らす', desc: '一定振動数のおんさをガラス管の口に近づけます。' },
+              { icon: '💧', title: 'ステップ2：水面を下げる', desc: '特定の深さで「ボォォン！」と大きく共鳴し、差から波長が求まります。' }
+            ]
+          },
+          {
+            id: 'phys_young',
+            name: 'ヤングの<ruby>干<rt>かん</rt>渉<rt>しょう</rt></ruby>実験（二重スリット）',
+            summary: 'レーザー光を2つのスリットに通し、スクリーンにできる光の明暗（干渉縞）を観察する実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '光の波長 λ（青〜赤）を変えて、明線の間隔 Δx = Lλ/d がどう変わるか確認しよう！',
+              label: '光の波長 λ（nm）',
+              min: 400,
+              max: 700,
+              initial: 550,
+              unit: 'nm',
+              targetCheck: (v) => v >= 650,
+              describe: (v) => {
+                const color = v < 480 ? '青紫' : v < 570 ? '緑' : '赤';
+                const bg = v < 480 ? 'rgba(99,102,241,0.5)' : v < 570 ? 'rgba(34,197,94,0.5)' : 'rgba(239,68,68,0.55)';
+                return {
+                  bg,
+                  icon: '🌈',
+                  status: `${color}色の干渉縞！波長 λ が長い（赤色に近い）ほど、明線の間隔 Δx は広くなる！`
+                };
+              }
+            },
+            equipmentIds: ['slit_plate'],
+            youtubeQuery: '高校物理 ヤングの実験 干渉縞',
+            points: [
+              '明線の間隔：Δx = Lλ / d（波長 λ や距離 L が大きいほど広く、スリット間隔 d が広いほど狭い！）',
+              '光が波の性質（回折と干渉）を持つことを証明した歴史的実験！'
+            ],
+            steps: [
+              { icon: '🔦', title: 'ステップ1：二重スリット通過', desc: '2つのスリットから出た光が波として広がり重なり合います。' },
+              { icon: '📊', title: 'ステップ2：等間隔の干渉縞', desc: '強め合う場所に明るい縞、弱め合う場所に暗い縞が並びます。' }
+            ]
+          },
+          {
+            id: 'phys_lens',
+            name: '<ruby>凸<rt>とつ</rt>レ<rt>れ</rt>ン<rt>ん</rt>ズ</ruby>の<ruby>結<rt>けつ</rt>像<rt>ぞう</rt></ruby>（実像と虚像）',
+            summary: 'ろうそく（物体）を凸レンズに近づけたり遠ざけたりして、実像と虚像のでき方を調べる実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '物体距離 a（焦点距離 f = 20cm）を動かして、2f の位置や f より内側で像がどう変わるか確かめよう！',
+              label: 'レンズから物体までの距離 a（cm）',
+              min: 5,
+              max: 60,
+              initial: 45,
+              unit: 'cm',
+              targetCheck: (v) => v <= 15,
+              describe: (v) => {
+                if (v > 40) return { bg: 'rgba(186,230,253,0.45)', icon: '🕯️⬇️', status: 'スクリーンに【縮小された倒立実像】が映った！（カメラと同じ）' };
+                if (v === 40) return { bg: 'rgba(134,239,172,0.45)', icon: '🕯️⬇️', status: 'a=2f！物体と【同じ大きさの倒立実像】ができた！' };
+                if (v > 20) return { bg: 'rgba(254,240,138,0.45)', icon: '🕯️⬇️', status: 'スクリーンに【拡大された倒立実像】が映った！（プロジェクターと同じ）' };
+                if (v === 20) return { bg: 'rgba(203,213,225,0.45)', icon: '💨', status: 'a=f（焦点上）！光が平行になり【像はできない】！' };
+                return { bg: 'rgba(244,114,182,0.45)', icon: '🔍🕯️⬆️', status: 'fより内側！レンズ越しに【拡大された正立虚像】が見える！（虫眼鏡と同じ）' };
+              }
+            },
+            equipmentIds: ['convex_lens'],
+            youtubeQuery: '高校物理 凸レンズ 実像 虚像 実験',
+            points: [
+              'レンズの公式：1/a + 1/b = 1/f（虚像のときは b < 0）',
+              '実像は「倒立」でスクリーンに映る、虚像は「正立」でレンズを通して直接見る！'
+            ],
+            steps: [
+              { icon: '🕯️', title: 'ステップ1：焦点の外側', desc: '反対側のスクリーンに上下左右逆さまの「倒立実像」が映ります。' },
+              { icon: '🔍', title: 'ステップ2：焦点の内側', desc: '虫眼鏡のように大きな「正立虚像」が見えます。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'phys_em',
+        name: '<ruby>電<rt>でん</rt>磁<rt>じ</rt>気<rt>き</rt></ruby>',
+        experiments: [
+          {
+            id: 'phys_induction',
+            name: '<ruby>電<rt>でん</rt>磁<rt>じ</rt>誘<rt>ゆう</rt>導<rt>どう</rt></ruby>（コイルと磁石）',
+            summary: 'コイルに棒磁石を出し入れして、誘導電流の向きと大きさを検流計で確かめる実験。',
+            playable: true,
+            simType: 'induction',
+            equipmentIds: ['galvanometer'],
+            youtubeQuery: '高校物理 電磁誘導 コイル 実験',
+            points: [
+              'レンツの法則：コイルは「磁束の変化を妨げる向き」に誘導電流を流す！',
+              '磁石を止めると磁束変化がゼロになるため、電流も 0 になる！'
+            ],
+            steps: [
+              { icon: '🧲', title: 'ステップ1：N極を近づける', desc: '反発するように上側がN極になる向きに電流が流れます。' },
+              { icon: '⏸️', title: 'ステップ2：磁石を止める', desc: '磁場の変化が止まると電流はゼロになります。' }
+            ]
+          },
+          {
+            id: 'phys_bridge',
+            name: 'ホイートストンブリッジ<ruby>回<rt>かい</rt>路<rt>ろ</rt></ruby>',
+            summary: '抵抗ダイヤルを調整して検流計の針を0にし、未知抵抗 Rx の値を正確に求める実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '可変抵抗 R3 を調整して、検流計の電流が 0（平衡条件 R1×R4 = R2×R3）になる値を見つけよう！（R1=10Ω, R2=20Ω, Rx=40Ω）',
+              label: '可変抵抗 R3（Ω）',
+              min: 5,
+              max: 40,
+              initial: 10,
+              unit: 'Ω',
+              targetCheck: (v) => v === 20,
+              describe: (v) => {
+                const diff = v - 20;
+                if (diff === 0) return { bg: 'rgba(34,197,94,0.55)', icon: '🎯⚡', status: '【検流計 0A 達成！】R1×Rx = R2×R3 (10×40 = 20×20) で平衡！Rx=40Ωと判明！' };
+                return {
+                  bg: 'rgba(251,191,36,0.35)',
+                  icon: '🧭',
+                  status: `検流計に電流が流れている（ズレ：${diff > 0 ? '+' : ''}${diff}Ω）→ 20Ω に合わせてみよう！`
+                };
+              }
+            },
+            equipmentIds: ['galvanometer', 'power_supply'],
+            youtubeQuery: '高校物理 ホイートストンブリッジ 実験',
+            points: [
+              '検流計に電流が流れないとき、向かい合う抵抗の積が等しい（R1・R4 = R2・R3）！',
+              '電流が流れない状態を使う「零位法」なので高精度に測定できる。'
+            ],
+            steps: [
+              { icon: '🧭', title: 'ステップ1：抵抗の調整', desc: '検流計の針がちょうど中央（0）になるように可変抵抗を回します。' },
+              { icon: '🧮', title: 'ステップ2：未知抵抗の算出', desc: 'たすき掛けの積が等しい式から未知抵抗を求めます。' }
+            ]
+          },
+          {
+            id: 'phys_capacitor',
+            name: 'コンデンサーの<ruby>充<rt>じゅう</rt>放<rt>ほう</rt>電<rt>でん</rt></ruby>',
+            summary: '大容量コンデンサーを充電したあと豆電球やLEDにつなぎ、時間経過による電流・電圧の変化を見る実験。',
+            playable: true,
+            simType: 'step_lab',
+            simConfig: {
+              guide: 'スイッチを切り替えて、コンデンサーの充電と放電の動きを体験しよう！',
+              stages: [
+                { label: '🔋 スイッチを電源側へ（充電開始）', visual: '⚡🔋', bg: 'rgba(56,189,248,0.45)', text: '最初は大きな充電電流が流れ、電圧が上がると電流は0に近づいて充電完了！' },
+                { label: '💡 スイッチを豆電球側へ（放電開始）', visual: '💡✨', bg: 'rgba(250,204,21,0.55)', text: '豆電球がパッと明るく光ったあと、電荷が減るにつれてゆっくり暗くなって消えた！' }
+              ]
+            },
+            equipmentIds: ['power_supply'],
+            youtubeQuery: '高校物理 コンデンサー 充放電 実験',
+            points: [
+              '充電完了時、コンデンサーの極板間電圧は電源電圧と等しくなり電流は0になる！',
+              '静電エネルギー U = 1/2 CV² で蓄えられる。'
+            ],
+            steps: [
+              { icon: '🔋', title: 'ステップ1：充電', desc: '電源から電荷が運ばれ、極板間に電圧が生じます。' },
+              { icon: '💡', title: 'ステップ2：放電', desc: '溜まった電荷が流れ出し、豆電球が光りながら徐々に消えます。' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'phys_atom',
+        name: '<ruby>原<rt>げん</rt>子<rt>し</rt></ruby>',
+        experiments: [
+          {
+            id: 'phys_photoelec',
+            name: '<ruby>光<rt>こう</rt>電<rt>でん</rt>効<rt>こう</rt>果<rt>か</rt></ruby>の実験',
+            summary: '金属板に当てる光の振動数（色）を変えて、光電子が飛び出すかどうかを検証する実験。',
+            playable: true,
+            simType: 'slider_lab',
+            simConfig: {
+              guide: '光の振動数（波長）を赤色→緑色→紫外線へと上げて、電子が飛び出す限界振動数を見つけよう！',
+              label: '光の振動数（×10¹⁴ Hz）',
+              min: 4,
+              max: 12,
+              initial: 5,
+              unit: '×10¹⁴ Hz',
+              targetCheck: (v) => v >= 9,
+              describe: (v) => {
+                if (v < 8) return { bg: 'rgba(239, 68, 68, 0.35)', icon: '🔴❌', status: '光電子は飛び出さない！（どんなに光を強くしても振動数が足りないと 0！）' };
+                return { bg: 'rgba(168, 85, 247, 0.55)', icon: '🟣⚡', status: '紫外線到達！光電子が飛び出した！（限界振動数 ν0 を超えた証拠！）' };
+              }
+            },
+            equipmentIds: ['power_supply'],
+            youtubeQuery: '高校物理 光電効果 実験',
+            points: [
+              '光は粒子（光子）の性質を持ち、1個のエネルギーは hν（プランク定数×振動数）！',
+              '振動数が限界振動数 ν0 より小さいと、いくら強い光を当てても光電子は出ない！'
+            ],
+            steps: [
+              { icon: '🔴', title: 'ステップ1：赤い光を当てる', desc: '限界振動数より低いため、電子は1個も飛び出しません。' },
+              { icon: '🟣', title: 'ステップ2：紫外線を当てる', desc: '仕事関数 W 以上のエネルギーを持つ光子がぶつかり、光電子が飛び出します！' }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const EQUIPMENT_MASTER = [
+  { id: 'burette', name: 'ビュレット', ruby: 'ビュレット', icon: '📏', short: '滴下量を0.1mL単位で正確に測れるガラス管', detail: 'コックをひねって1滴ずつ落とせます。使用前に中に入れる水溶液で「共洗い」するのが鉄則です。' },
+  { id: 'conical_flask', name: 'コニカルビーカー', ruby: 'コニカルビーカー', icon: '🧪', short: '口がすぼまって振り混ぜやすいビーカー', detail: '中和滴定で下に置いて使います。振り混ぜても飛び散りにくい形。純水ですすぎます（共洗いNG）。' },
+  { id: 'pipette', name: '駒込ピペット', ruby: '<ruby>駒<rt>こま</rt>込<rt>ごめ</rt></ruby>ピペット', icon: '💧', short: '少量の液体を吸い取って1滴ずつ加える道具', detail: 'ゴム球をつまんで吸い上げます。ゴム球に液が入らないよう立てて持ちます。' },
+  { id: 'platinum_loop', name: '白金耳', ruby: '<ruby>白<rt>はっ</rt>金<rt>きん</rt>耳<rt>みみ</rt></ruby>', icon: '🪄', short: '炎色反応で試料をつける耐熱性の高い金属線', detail: '使う前に濃塩酸で洗って空焼きすることで、前の金属の色が残らないようにします。' },
+  { id: 'gas_burner', name: 'ガスバーナー', ruby: 'ガスバーナー', icon: '🔥', short: '空気量を調整して高温の青い炎を作る加熱器具', detail: '下がガス調節ねじ、上が空気調節ねじ。空気を混ぜた青い外炎が一番高温です。' },
+  { id: 'test_tube', name: '試験管', ruby: '<ruby>試<rt>し</rt>験<rt>けん</rt>管<rt>かん</rt></ruby>', icon: '🧪', short: '少量の試薬を混ぜて反応や沈殿を観察する管', detail: '振るときは横に軽く振ります。加熱時は口を絶対に人の方へ向けません。' },
+  { id: 'beaker', name: 'ビーカー', ruby: 'ビーカー', icon: '🥛', short: '液体を入れたり混ぜたりする基本的なガラス容器', detail: '注ぎ口がついています。目盛りはあくまで目安で、正確な計量には使いません。' },
+  { id: 'water_bath', name: '湯浴（ウォーターバス）', ruby: '<ruby>湯<rt>ゆ</rt>浴<rt>よく</rt></ruby>装置', icon: '♨️', short: 'お湯や氷水を使って穏やかに温度を保つ装置', detail: '引火しやすい有機溶媒（エタノール等）を直接火にかけず安全に温めるときに必須です。' },
+  { id: 'porous_plate', name: '素焼き板', ruby: '<ruby>素<rt>す</rt>焼<rt>や</rt>き</ruby>板', icon: '🧱', short: '小さな穴が空いていてイオンだけを通す仕切り板', detail: 'ダニエル電池などで2種類の水溶液がすぐ混ざるのを防ぎつつ、電気的中性を保つためにイオンを通します。' },
+  { id: 'power_supply', name: '直流電源装置', ruby: '<ruby>直<rt>ちょく</rt>流<rt>りゅう</rt></ruby>電源装置', icon: '🔋', short: '電気分解や電気回路に一定の電圧・電流を流す装置', detail: '＋極と－極を正しくつなぎ、電圧をゼロからゆっくり上げて使用します。' },
+  { id: 'microscope', name: '光学顕微鏡', ruby: '<ruby>光<rt>こう</rt>学<rt>がく</rt><rt>顕<rt>けん</rt>微<rt>び</rt>鏡<rt>きょう</rt></ruby>', icon: '🔬', short: 'レンズでミクロな細胞を拡大して観察する装置', detail: '最初は低倍率で探し、中央に合わせてから高倍率に変えてピントを微調整します。' },
+  { id: 'fermentation_tube', name: 'キューネ発酵管', ruby: 'キューネ<ruby>発<rt>はっ</rt>酵<rt>こう</rt>管<rt>かん</rt></ruby>', icon: '🧪', short: '無酸素状態で発酵による気体発生を測る管', detail: '上の閉じた部分（盲管部）に酵母菌と糖を入れ、発生したCO2の体積を目盛りで読めます。' },
+  { id: 'chromato_jar', name: '展開容器とろ紙', ruby: '<ruby>展<rt>てん</rt>開<rt>かい</rt></ruby>容器・ろ紙', icon: '🌈', short: '物質の移動速度の差で色素を分離するセット', detail: '原点が展開液に浸からないようにセットし、蓋をして溶媒の蒸発を防ぎながら上昇させます。' },
+  { id: 'recording_timer', name: '記録タイマー', ruby: '<ruby>記<rt>き</rt>録<rt>ろく</rt></ruby>タイマー', icon: '⏱️', short: '一定時間ごとにテープへ点を打ち運動を記録する装置', detail: '50Hzでは1秒間に50回、60Hzでは60回打点します。5打点または6打点ごとに切ってグラフにします。' },
+  { id: 'stopwatch', name: 'ストップウォッチ', ruby: 'ストップウォッチ', icon: '⏱️', short: '振り子の周期など経過時間を精密に測る計器', detail: '振り子の測定では、1往復ではなく10往復の時間を測って10で割ることで誤差を減らします。' },
+  { id: 'slit_plate', name: '二重スリット板', ruby: '<ruby>二<rt>に</rt>重<rt>じゅう</rt></ruby>スリット板', icon: '🎞️', short: 'ごく狭い2本のすき間から光を回折・干渉させる板', detail: 'ヤングの実験で光の波の性質（干渉縞）を観察するために使います。' },
+  { id: 'convex_lens', name: '凸レンズ', ruby: '<ruby>凸<rt>とつ</rt></ruby>レンズ', icon: '🔍', short: '平行光線を焦点に集め、実像や虚像をつくるレンズ', detail: '焦点距離 f に対して物体が外側なら倒立実像、内側なら正立虚像ができます。' },
+  { id: 'tuning_fork', name: 'おんさ・共鳴管', ruby: 'おんさ・<ruby>共<rt>きょう</rt>鳴<rt>めい</rt>管<rt>かん</rt></ruby>', icon: '🔔', short: '一定振動数の音を出す器具と水柱のガラス管', detail: '水面を上下させて共鳴する位置を測ることで、空気中の音速を求められます。' },
+  { id: 'galvanometer', name: 'コイルと検流計', ruby: 'コイルと<ruby>検<rt>けん</rt>流<rt>りゅう</rt>計<rt>けい</rt></ruby>', icon: '🧭', short: '微小な電流の向きと大きさを測るメーター', detail: '針が中央（0）にあり、電流の向きによって左右どちらにも振れるのが特徴です。' }
+];
+
+const QUIZ_MASTER = [
+  { id: 'q_neutral', expId: 'chem_neutral', question: '中和滴定で、塩酸を入れるコニカルビーカーを洗うときに使ってはいけない方法はどれ？', options: ['使用する塩酸で「共洗い」する', '純水ですすぐ', '洗ったあと水滴が少し残ったまま使う'], answer: 0, explanation: 'コニカルビーカーを共洗いすると H+ の物質量が増えてしまい、正確な滴定ができません！' },
+  { id: 'q_daniell', expId: 'chem_daniell', question: 'ダニエル電池で、素焼き板の主な役割はどれ？', options: ['2液がすぐ混ざるのを防ぎつつ、イオンを通過させる', '電子を素焼き板の中だけに通す', '亜鉛板を溶けなくする'], answer: 0, explanation: '2つの水溶液を分けながら SO4^2- などのイオンを通して電気的中性を保ちます。' },
+  { id: 'q_elec', expId: 'chem_electrolysis', question: '白金電極で硫酸銅(II)水溶液を電気分解したとき、陽極（＋）から発生する気体は？', options: ['水素（H2）', '酸素（O2）', '二酸化硫黄（SO2）'], answer: 1, explanation: '陽極では水が酸化されて酸素（O2）が発生し、溶液は酸性になります！' },
+  { id: 'q_equil', expId: 'chem_equilibrium', question: '2NO2(赤褐色) ⇌ N2O4(無色) の平衡で、試験管を氷水で冷やすと色はどうなる？', options: ['濃くなる', '薄くなる（無色に近づく）', '変わらない'], answer: 1, explanation: '右向きが発熱反応なので、冷やすと発熱方向（無色の N2O4 側）へ平衡が移動します！' },
+  { id: 'q_colloid', expId: 'chem_colloid', question: '疎水コロイドに「少量の電解質」を加えたときに沈殿する現象を何という？', options: ['塩析', '凝析', '透析'], answer: 1, explanation: '少量の電解質で沈殿するのが「凝析」、多量の電解質で沈殿するのが親水コロイドの「塩析」です！' },
+  { id: 'q_flame', expId: 'chem_flame', question: '炎色反応で「銅（Cu）」が含まれるときの炎の色は？', options: ['赤色', '青緑色', '黄色'], answer: 1, explanation: '銅（Cu）は美しい青緑色になります！（リアカー無きK村…の「くれない＝Cu青緑」も要注意）' },
+  { id: 'q_precip', expId: 'chem_precip', question: 'Cu2+ 水溶液にアンモニア水を過剰に加えると何色の溶液になる？', options: ['深青色', '赤褐色', '無色透明'], answer: 0, explanation: '[Cu(NH3)4]2+ という深青色の錯イオンになって溶けます！' },
+  { id: 'q_gas', expId: 'chem_gas', question: '高校化学で習う気体のうち、「上方置換法」で集める代表的な気体は？', options: ['塩素（Cl2）', 'アンモニア（NH3）', '二酸化炭素（CO2）'], answer: 1, explanation: '水に極めてよく溶け、空気より軽いアンモニアは上方置換で集めます！' },
+  { id: 'q_halo', expId: 'chem_halogen', question: 'ハロゲン単体の酸化力が強い順番として正しいのは？', options: ['I2 ＞ Br2 ＞ Cl2', 'Cl2 ＞ Br2 ＞ I2', 'Br2 ＞ Cl2 ＞ I2'], answer: 1, explanation: '周期表の上にある元素ほど電子を奪う力（酸化力）が強くなります！' },
+  { id: 'q_silver', expId: 'chem_silver', question: 'フェーリング液をアルデヒドと温めたときにできる赤色沈殿の正体は？', options: ['Cu（単体の銅）', 'Cu2O（酸化銅(I)）', 'Ag（銀）'], answer: 1, explanation: 'フェーリング反応では酸化銅(I) Cu2O の赤色沈殿が生じます！' },
+  { id: 'q_ester', expId: 'chem_ester', question: '酢酸エチルの合成で「濃硫酸」を加える理由に含まれないものは？', options: ['反応を速める触媒にするため', '水を奪って反応を右に進めるため', '甘い香りをつける香料にするため'], answer: 2, explanation: '濃硫酸は触媒と脱水剤の役割です。甘い香りは生成した酢酸エチルそのものです！' },
+  { id: 'q_iodo', expId: 'chem_iodoform', question: '次のうち、ヨードホルム反応で黄色沈殿を生じ「ない」ものはどれ？', options: ['エタノール', 'メタノール', 'アセトン'], answer: 1, explanation: 'メタノールは CH3-CO- も CH3-CH(OH)- も持たないため陰性です！' },
+  { id: 'q_azo', expId: 'chem_azo', question: 'アニリンをジアゾ化するときに「5℃以下に氷冷」する理由は？', options: ['室温だとN2を放出してフェノールに分解するため', '凍らせて固体にするため', '色を青くするため'], answer: 0, explanation: 'ジアゾニウム塩は熱に不安定で、温めると窒素を出してフェノールに変わってしまいます！' },
+  { id: 'q_prot', expId: 'chem_protein', question: 'タンパク質に濃硝酸を加えて熱し、さらにアンモニア水を加えると橙黄色になる反応は？', options: ['ビウレット反応', 'キサントプロテイン反応', 'ニンヒドリン反応'], answer: 1, explanation: 'ベンゼン環がニトロ化されて黄色→橙黄色になる「キサントプロテイン反応」です！' },
+  { id: 'q_nylon', expId: 'chem_nylon', question: 'ナイロン66の合成で、2種類の液体の境界面で室温のまま反応が進む方法を何という？', options: ['付加重合', '界面重縮合', '開環重合'], answer: 1, explanation: '2層の境界面（界面）でHClが脱離しながら縮合するため「界面重縮合」と呼びます！' },
+  { id: 'q_mitosis', expId: 'bio_mitosis', question: 'タマネギの体細胞分裂観察で、希塩酸で温める「解離」の一番の目的は？', options: ['細胞どうしの接着をゆるめて1層に広げやすくするため', '染色体を赤く染めるため', '分裂を加速させるため'], answer: 0, explanation: 'ペクチンを溶かして細胞をほぐし、押しつぶしたときに1層に広がるようにします！' },
+  { id: 'q_plasmo', expId: 'bio_plasmolysis', question: '植物細胞を濃いスクロース水溶液に浸すと細胞膜が細胞壁から離れる現象を何という？', options: ['溶血', '原形質分離', '原形質流動'], answer: 1, explanation: '水が細胞外へ抜けて細胞膜が縮む「原形質分離」が起こります！' },
+  { id: 'q_cat', expId: 'bio_catalase', question: '肝臓片を煮沸してから過酸化水素水に入れても泡が出ない理由は？', options: ['酵素カタラーゼが熱で変性して失活したから', '過酸化水素が蒸発したから', '肝臓の細胞壁が溶けたから'], answer: 0, explanation: '酵素はタンパク質なので、高温で立体構造が壊れて働きを失います（失活）！' },
+  { id: 'q_ferm', expId: 'bio_ferment', question: 'キューネ発酵管で発生した気体に NaOH 水溶液を加えて振ると気体が消えた。この気体は？', options: ['酸素（O2）', '二酸化炭素（CO2）', '水素（H2）'], answer: 1, explanation: 'アルカリ性の NaOH 水溶液に吸収されることから二酸化炭素（CO2）とわかります！' },
+  { id: 'q_dna', expId: 'bio_dna', question: 'DNA抽出実験で「台所用洗剤」を加える一番の理由は？', options: ['DNAに色をつけるため', '細胞膜や核膜（脂質）を破壊してDNAを外に出すため', '雑菌を殺すため'], answer: 1, explanation: '界面活性剤の働きで脂質二重層からなる細胞膜と核膜を溶かします！' },
+  { id: 'q_chro', expId: 'bio_chromato', question: '光合成色素のペーパークロマトグラフィーで、最も上の位置まで移動する色素は？', options: ['クロロフィルb', 'カロテン', 'キサントフィル'], answer: 1, explanation: '上から カロテン → キサントフィル → クロロフィルa → クロロフィルb の順に分かれます！' },
+  { id: 'q_stom', expId: 'bio_stomata', question: '乾燥ストレス時に気孔を閉じる働きをする植物ホルモンは？', options: ['オーキシン', 'アブシシン酸', 'ジベレリン'], answer: 1, explanation: 'アブシシン酸が孔辺細胞に働いてK+と水を流し出し、気孔を閉じます！' },
+  { id: 'q_photo', expId: 'bio_photosynth', question: '見かけの光合成速度が0（真の光合成速度＝呼吸速度）になる光の強さを何という？', options: ['光飽和点', '補償点', '臨界点'], answer: 1, explanation: 'CO2の吸収と放出がちょうど釣り合う「補償点」です！' },
+  { id: 'q_cart', expId: 'phys_cart', question: '50Hzの交流電源を使う記録タイマーで、5打点ごとにテープを切ると1本は何秒分？', options: ['0.05秒', '0.10秒', '0.20秒'], answer: 1, explanation: '1秒間に50打点＝1打点0.02秒なので、5打点で 0.02×5＝0.10秒 になります！' },
+  { id: 'q_pend', expId: 'phys_pendulum', question: '単振り子のおもりの重さ（質量）を4倍にすると、周期はどうなる？', options: ['2倍になる', '4倍になる', '変わらない'], answer: 2, explanation: '周期 T = 2π√(l/g) には質量 m が含まれないため、重さを変えても周期は変わりません！' },
+  { id: 'q_coll', expId: 'phys_collision', question: '同じ質量の台車どうしが合体（完全非弾性衝突）したとき、衝突後の速さは元の何倍？', options: ['1/2 倍', '1/4 倍', '同じ'], answer: 0, explanation: '運動量保存 mv = (m+m)V より、V = v/2（半分）になります！' },
+  { id: 'q_res', expId: 'phys_resonance', question: '気柱の共鳴実験で、1回目と2回目の共鳴位置の差 l2 - l1 は波長 λ の何倍？', options: ['λ / 4 倍', 'λ / 2 倍', 'λ 倍'], answer: 1, explanation: '節から次の節までの距離＝半波長（λ/2）になります！' },
+  { id: 'q_young', expId: 'phys_young', question: 'ヤングの実験で、赤い光から青い光（波長が短い）に変えると明線の間隔 Δx はどうなる？', options: ['広くなる', '狭くなる', '変わらない'], answer: 1, explanation: 'Δx = Lλ/d より、波長 λ が短くなると間隔 Δx も狭くなります！' },
+  { id: 'q_lens', expId: 'phys_lens', question: '凸レンズの焦点距離 f より「内側」に物体を置いたときに見える像は？', options: ['倒立実像', '正立虚像', '像はできない'], answer: 1, explanation: '虫眼鏡の原理と同じで、拡大された「正立虚像」が見えます！' },
+  { id: 'q_ind', expId: 'phys_induction', question: 'コイルの中で磁石を「完全に静止」させると、検流計の針はどうなる？', options: ['ずっと振れたまま', '0に戻る', '逆向きに振れる'], answer: 1, explanation: '磁束が変化しなくなると誘導起電力が 0 になり、電流は止まります！' },
+  { id: 'q_bridge', expId: 'phys_bridge', question: 'ホイートストンブリッジ回路で検流計に電流が流れないとき、成り立つ式は？', options: ['R1 + R4 = R2 + R3', 'R1 × R4 = R2 × R3', 'R1 / R4 = R2 / R3'], answer: 1, explanation: '向かい合う抵抗の積（たすき掛け）が等しくなります！' },
+  { id: 'q_cap', expId: 'phys_capacitor', question: 'コンデンサーの充電が完全に終わった直後、回路を流れる電流はどうなる？', options: ['最大の電流が流れ続ける', '0 になる', '逆向きに流れる'], answer: 1, explanation: '極板の電圧が電源電圧と等しくなるとそれ以上電荷が移動できず、電流は 0 になります！' },
+  { id: 'q_pho', expId: 'phys_photoelec', question: '限界振動数より低い光を金属板に当てたとき、光の「強さ」を100倍にしたら光電子は出る？', options: ['たくさん出る', '1個も出ない', '少しだけ出る'], answer: 1, explanation: '光子1個のエネルギー hν が仕事関数 W 未満なら、光量をいくら増やしても1個も飛び出しません！' }
+];
+// ラボ・ロジカ（LAB LOGICA）追加全実験データ（＋36実験・＋6器具・＋36クイズ → 合計69実験）
+
+(function () {
+  const chem = SUBJECTS_DATA.find((s) => s.id === 'chem');
+  const bio = SUBJECTS_DATA.find((s) => s.id === 'bio');
+  const phys = SUBJECTS_DATA.find((s) => s.id === 'phys');
+
+  chem.units.unshift({
+    id: 'chem_basic',
+    name: '<ruby>化<rt>か</rt>学<rt>がく</rt>基<rt>き</rt>礎<rt>そ</rt></ruby>（分離・溶液調製）',
+    experiments: [
+      {
+        id: 'chem_separation',
+        name: '<ruby>混<rt>こん</rt>合<rt>ごう</rt>物<rt>ぶつ</rt></ruby>の<ruby>分<rt>ぶん</rt>離<rt>り</rt></ruby>（蒸留・再結晶・昇華）',
+        summary: '沸点差・溶解度差・昇華性など物質の性質の違いを利用して混合物を分ける実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '4つの代表的な分離操作を順番に試して、どんな物質に使うか確認しよう！',
+          stages: [
+            { label: '🌡️ 蒸留（海水から純水を得る）', visual: '💧♨️', bg: 'rgba(56,189,248,0.45)', text: '沸点の違いを利用！リービッヒ冷却器で冷やして純粋な水を集めます（冷却水は下→上！）。' },
+            { label: '❄️ 再結晶（KNO3とNaClの分離）', visual: '💎', bg: 'rgba(186,230,253,0.5)', text: '温度による溶解度差を利用！高温で溶かして冷やすと KNO3 の結晶が析出！' },
+            { label: '🟣 昇華法（ヨウ素の精製）', visual: '💨✨', bg: 'rgba(168,85,247,0.45)', text: '固体から直接気体になるヨウ素やナフタレンを温めて冷やし、純粋な結晶を得る！' },
+            { label: '🧪 抽出（ヨウ素水＋ヘキサン）', visual: '🟠🟣', bg: 'rgba(244,114,182,0.45)', text: '溶媒への溶けやすさの違いを利用！ヨウ素は上のヘキサン層へ移動して赤紫色に！' }
+          ]
+        },
+        equipmentIds: ['beaker', 'separatory_funnel'],
+        youtubeQuery: '高校化学 混合物の分離 蒸留 再結晶 昇華',
+        points: [
+          'リービッヒ冷却器の冷却水は必ず「下から入れて上から出す」（気泡を残さず満水にするため）！',
+          '沸騰石は突沸を防ぐため、加熱「前」に入れる！'
+        ],
+        steps: [
+          { icon: '♨️', title: 'ステップ1：蒸留・分留', desc: '沸点の違いを利用して液体を気化・冷却し、純物質を取り出します。' },
+          { icon: '💎', title: 'ステップ2：再結晶・昇華', desc: '溶解度差や昇華性を利用して純粋な結晶を分離します。' }
+        ]
+      },
+      {
+        id: 'chem_molarity',
+        name: 'モル<ruby>濃<rt>のう</rt>度<rt>ど</rt></ruby>の<ruby>溶<rt>よう</rt>液<rt>えき</rt>調<rt>ちょう</rt>製<rt>せい</rt></ruby>',
+        summary: 'メスフラスコと電子天秤・ホールピペットを使って正確な濃度の水溶液を作る実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '正確な 0.10 mol/L の水溶液を作る手順を順番に進めよう！',
+          stages: [
+            { label: '⚖️ 溶質を量り取りビーカーで少量の水に溶かす', visual: '🥛', bg: 'rgba(226,232,240,0.45)', text: '直接メスフラスコで溶かさず、まずビーカーで溶かして室温まで冷まします。' },
+            { label: '🏺 メスフラスコへ移し、共洗い液もすべて入れる', visual: '💧', bg: 'rgba(186,230,253,0.45)', text: 'ビーカーについた溶質も純水ですすいで一滴残らずメスフラスコへ移します！' },
+            { label: '📏 標線（メニスカス）まで純水を加えて振り混ぜる', visual: '✅✨', bg: 'rgba(34,197,94,0.45)', text: '駒込ピペットで標線ぴったりに合わせ、栓をして上下に振り混ぜて完成！' }
+          ]
+        },
+        equipmentIds: ['volumetric_flask', 'beaker', 'pipette'],
+        youtubeQuery: '高校化学 メスフラスコ 溶液調製 実験',
+        points: [
+          'メスフラスコは純水で濡れていてもOK（共洗いNG・加熱乾燥NG）！',
+          '最後は駒込ピペットで目線の高さから「メニスカスの底」を標線に合わせる！'
+        ],
+        steps: [
+          { icon: '🥛', title: 'ステップ1：ビーカーで溶解', desc: '溶質を少量の純水に完全に溶かします。' },
+          { icon: '🏺', title: 'ステップ2：標線に合わせる', desc: 'メスフラスコに移して純水を加え、標線ぴったりに合わせます。' }
+        ]
+      }
+    ]
+  });
+
+  const chemTheory = chem.units.find((u) => u.id === 'chem_theory');
+  chemTheory.experiments.push(
+    {
+      id: 'chem_redox_titration',
+      name: '<ruby>酸<rt>さん</rt>化<rt>か</rt>還<rt>げん</rt>滴<rt>てき</rt>定<rt>てい</rt></ruby>（KMnO4）',
+      summary: 'シュウ酸水溶液に過マンガン酸カリウム水溶液を滴下し、赤紫色が消えなくなる終点を見極める実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '硫酸酸性のシュウ酸水溶液に KMnO4 を滴下して、終点の色変化を確認しよう！',
+        stages: [
+          { label: '🧪 シュウ酸＋希硫酸を約60℃に温める', visual: '🌡️', bg: 'rgba(226,232,240,0.4)', text: '反応を速めるため軽く温めます（硫酸を使うのは酸化還元に関与しないため）。' },
+          { label: '🟣 KMnO4（赤紫色）を滴下していく', visual: '💧', bg: 'rgba(216,180,254,0.35)', text: '入れた瞬間は赤紫色ですが、Mn2+ に還元されてすぐ「無色」に消えます！' },
+          { label: '🩷 薄い赤紫色が消えずに残った！（終点）', visual: '✨🩷', bg: 'rgba(244,114,182,0.55)', text: '指示薬なしでも、微かな赤紫色が30秒消えなくなったら滴定終了！' }
+        ]
+      },
+      equipmentIds: ['burette', 'conical_flask'],
+      youtubeQuery: '高校化学 酸化還元滴定 過マンガン酸カリウム 実験',
+      points: [
+        'KMnO4 自身が赤紫色→無色に変化するため、他の指示薬が不要！',
+        '酸性化に「塩酸（HCl）」を使うと Cl- が酸化されて Cl2 になるためNG！必ず「希硫酸」を使う！'
+      ],
+      steps: [
+        { icon: '🌡️', title: 'ステップ1：硫酸酸性・加温', desc: 'シュウ酸に希硫酸を加えて約60℃に温めます。' },
+        { icon: '🩷', title: 'ステップ2：終点の判定', desc: 'KMnO4 の薄い赤紫色が消えなくなったら終了です！' }
+      ]
+    },
+    {
+      id: 'chem_heat_neutral',
+      name: '<ruby>中<rt>ちゅう</rt>和<rt>わ</rt>熱<rt>ねつ</rt></ruby>の<ruby>測<rt>そく</rt>定<rt>てい</rt></ruby>',
+      summary: '発泡スチロール容器の中で強酸と強塩基を混ぜ、温度上昇から中和熱（約56.5 kJ/mol）を求める実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '混ぜる塩酸と水酸化ナトリウムのモル数を増やして、発生熱量と温度上昇を確認しよう！',
+        label: '反応した H+ と OH- の物質量（mol）',
+        min: 0.05,
+        max: 0.25,
+        initial: 0.05,
+        unit: 'mol',
+        targetCheck: (v) => v >= 0.2,
+        describe: (v) => {
+          const q = (v * 56.5).toFixed(2);
+          const dt = (v * 56.5 / 0.42).toFixed(1);
+          return { bg: 'rgba(251, 146, 60, 0.45)', icon: '🌡️🔥', status: `発生熱量 Q = ${q} kJ（温度上昇 ΔT ≈ +${dt}℃）※1molあたり常に約56.5 kJ！` };
+        }
+      },
+      equipmentIds: ['calorimeter'],
+      youtubeQuery: '高校化学 中和熱の測定 実験',
+      points: [
+        '強酸＋強塩基の中和熱は、種類によらず水 1mol あたり約 56.5 kJ！',
+        '熱が外に逃げないよう断熱性の高い発泡スチロール容器を使う。'
+      ],
+      steps: [
+        { icon: '🥤', title: 'ステップ1：断熱容器で混合', desc: '塩酸とNaOH水溶液を混ぜて素早く温度変化を記録します。' },
+        { icon: '🧮', title: 'ステップ2：Q = mcΔT で算出', desc: '温度上昇から熱量を計算し、生成した水の物質量で割ります。' }
+      ]
+    },
+    {
+      id: 'chem_lead_battery',
+      name: '<ruby>鉛<rt>なまり</rt>蓄<rt>ちく</rt>電<rt>でん</rt>池<rt>ち</rt></ruby>の放電と充電',
+      summary: '鉛板と酸化鉛(IV)板を希硫酸に入れ、豆電球を点灯（放電）させたあと外部電源で充電する実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '「放電」と「充電」で両極の質量や希硫酸の濃度がどう変化するか確認しよう！',
+        stages: [
+          { label: '💡 放電（Pb と PbO2 を導線でつなぐ）', visual: '💡✨', bg: 'rgba(250,204,21,0.45)', text: '約2Vで点灯！両極ともに白色の硫酸鉛(II) PbSO4 に変わり質量が増加！希硫酸は薄くなる。' },
+          { label: '🔌 充電（外部電源を逆向きにつなぐ）', visual: '🔋⚡', bg: 'rgba(56,189,248,0.45)', text: '逆反応が起きて元の Pb と PbO2 に戻り、希硫酸の濃度も回復！繰り返し使える二次電池！' }
+        ]
+      },
+      equipmentIds: ['beaker', 'power_supply'],
+      youtubeQuery: '高校化学 鉛蓄電池 実験',
+      points: [
+        '放電すると両極（負極 Pb、正極 PbO2）ともに「PbSO4」になり質量が増加する！',
+        '放電で H2SO4 が消費され H2O が生じるため、電解液の密度・濃度が低下する。'
+      ],
+      steps: [
+        { icon: '💡', title: 'ステップ1：放電', desc: '負極・正極ともにPbSO4になり、起電力約2.1Vで電流が流れます。' },
+        { icon: '🔋', title: 'ステップ2：充電', desc: '外部電源から逆向きに電流を流すと元の電極と希硫酸に再生します。' }
+      ]
+    },
+    {
+      id: 'chem_nacl_elec',
+      name: 'NaCl水溶液の<ruby>電<rt>でん</rt>気<rt>き</rt>分<rt>ぶん</rt>解<rt>かい</rt></ruby>（陽イオン交換膜法）',
+      summary: '食塩水を電気分解して塩素・水素・水酸化ナトリウムを工業的に作る仕組みを確かめる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '陽イオン交換膜で仕切った食塩水に電流を流して、両極の生成物を確認しよう！',
+        stages: [
+          { label: '⚡ 陽極（＋）の反応を見る', visual: '🟨🫧', bg: 'rgba(250,204,21,0.45)', text: '塩化物イオン Cl- が電子を奪われ、黄緑色の「塩素（Cl2）」が発生！' },
+          { label: '⚡ 陰極（－）の反応を見る', visual: '🫧🔵', bg: 'rgba(56,189,248,0.45)', text: '水が還元されて「水素（H2）」が発生！陰極室に高純度の NaOH 水溶液が生成！' }
+        ]
+      },
+      equipmentIds: ['power_supply', 'beaker'],
+      youtubeQuery: '高校化学 塩化ナトリウム水溶液 電気分解 陽イオン交換膜法',
+      points: [
+        '陽極：2Cl- → Cl2 + 2e-（塩素発生）',
+        '陰極：2H2O + 2e- → H2 + 2OH-（水素発生＆塩基性化）、Na+ が交換膜を通って陰極室へ移動！'
+      ],
+      steps: [
+        { icon: '🟨', title: 'ステップ1：陽極でCl2', desc: 'Cl-が酸化されて塩素ガスが発生します。' },
+        { icon: '🔵', title: 'ステップ2：陰極でH2とNaOH', desc: '水素が発生し、陰極室に水酸化ナトリウムが得られます。' }
+      ]
+    },
+    {
+      id: 'chem_reaction_rate',
+      name: '<ruby>反<rt>はん</rt>応<rt>のう</rt>速<rt>そく</rt>度<rt>ど</rt></ruby>と温度・触媒',
+      summary: '過酸化水素の分解反応で、温度や触媒（MnO2）の有無による反応速度の違いを調べる実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '反応温度を上げて、単位時間あたりの酸素発生速度がどう変化するか観察しよう！',
+        label: '反応温度（℃）',
+        min: 10,
+        max: 60,
+        initial: 20,
+        unit: '℃',
+        targetCheck: (v) => v >= 50,
+        describe: (v) => {
+          const rate = Math.pow(2, (v - 20) / 10).toFixed(1);
+          return { bg: 'rgba(56, 189, 248, 0.45)', icon: v >= 45 ? '🫧🫧🫧' : '🫧', status: `20℃の約 ${rate} 倍の速さで酸素が発生！（一般に温度が10℃上がると反応速度は約2〜3倍！）` };
+        }
+      },
+      equipmentIds: ['test_tube', 'water_bath'],
+      youtubeQuery: '高校化学 反応速度 温度 触媒 実験',
+      points: [
+        '温度を上げると活性化エネルギー以上の運動エネルギーを持つ分子が増え、反応速度が急増！',
+        '触媒は「活性化エネルギー」を下げるが、反応熱（ΔH）は変えない！'
+      ],
+      steps: [
+        { icon: '🌡️', title: 'ステップ1：温度を上げる', desc: '10℃上げるごとに反応速度が約2倍以上速くなります。' },
+        { icon: '⚡', title: 'ステップ2：触媒の効果', desc: 'MnO2を加えると活性化エネルギーが下がり常温でも激しく分解します。' }
+      ]
+    }
+  );
+
+  const chemInorg = chem.units.find((u) => u.id === 'chem_inorg');
+  chemInorg.experiments.push(
+    {
+      id: 'chem_systematic',
+      name: '金属イオンの<ruby>系<rt>けい</rt>統<rt>とう</rt>分<rt>ぶん</rt>離<rt>り</rt></ruby>（混合液）',
+      summary: 'Ag+, Pb2+, Cu2+, Fe3+, Al3+, Zn2+, Ca2+ が混ざった液から、試薬を順に加えて1つずつ分離する実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '混合溶液から沈殿と濾過を繰り返し、5段階で全イオンを完全に分け切ろう！',
+        stages: [
+          { label: '① 塩酸（HCl）を加える', visual: '⚪', bg: 'rgba(226,232,240,0.5)', text: 'AgCl・PbCl2 が白色沈殿！（熱湯でPbCl2だけ溶かして分離）' },
+          { label: '② 濾液（酸性）に H2S を通じる', visual: '⚫', bg: 'rgba(51,65,85,0.75)', text: 'CuS が黒色沈殿として分離！' },
+          { label: '③ 煮沸してH2S追い出し→HNO3で酸化→NH3水過剰', visual: '🟫⚪', bg: 'rgba(180,83,9,0.5)', text: 'Fe(OH)3(赤褐)・Al(OH)3(白) が沈殿！Zn2+ は錯イオンで濾液へ！' },
+          { label: '④ 濾液（塩基性）に H2S を通じる', visual: '⚪✨', bg: 'rgba(241,245,249,0.65)', text: 'ZnS が白色沈殿として分離！残った濾液に (NH4)2CO3 で CaCO3(白) を分離して完了！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'beaker', 'pipette'],
+      youtubeQuery: '高校化学 金属イオンの系統分離 実験',
+      points: [
+        '手順の順番（HCl → H2S(酸性) → 煮沸&酸化&NH3水過剰 → H2S(塩基性) → (NH4)2CO3）をそのまま覚えよう！',
+        '手順③で「H2Sを煮沸で追い出し、HNO3でFe2+をFe3+に酸化する」理由が超頻出！'
+      ],
+      steps: [
+        { icon: '1️⃣', title: 'ステップ1：HClでAg+, Pb2+分離', desc: '塩化物沈殿を作って濾過します。' },
+        { icon: '2️⃣', title: 'ステップ2：酸性H2SでCu2+分離', desc: '酸性条件下でCuSを沈殿させます。' },
+        { icon: '3️⃣', title: 'ステップ3：NH3過剰でFe3+, Al3+分離', desc: '水酸化物沈殿を作り、Zn2+は錯イオンとして濾液に残します。' }
+      ]
+    },
+    {
+      id: 'chem_iron_detect',
+      name: '鉄イオン（Fe2+・Fe3+）の<ruby>検<rt>けん</rt>出<rt>しゅつ</rt></ruby>',
+      summary: 'ヘキサシアニド鉄酸カリウムやチオシアン酸カリウムを使って Fe2+ と Fe3+ を鋭敏に見分ける実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'Fe2+ と Fe3+ の見分けに使う3つの有名な試薬を試そう！',
+        stages: [
+          { label: '🔵 Fe2+ ＋ K3[Fe(CN)6]（赤血塩）', visual: '🔵', bg: 'rgba(29,78,216,0.75)', text: '濃青色沈殿（ターンブル青）が生成！Fe2+ 特有の検出反応！' },
+          { label: '🔵 Fe3+ ＋ K4[Fe(CN)6]（黄血塩）', visual: '🔵', bg: 'rgba(30,64,175,0.8)', text: '濃青色沈殿（ベルリン青 / プルシアンブルー）が生成！Fe3+ の検出反応！' },
+          { label: '🩸 Fe3+ ＋ KSCN（チオシアン酸カリウム）', visual: '🩸', bg: 'rgba(185,28,28,0.8)', text: '鮮やかな「血赤色」の溶液に！沈殿ではなく錯イオン [Fe(SCN)]2+ の色！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'pipette'],
+      youtubeQuery: '高校化学 Fe2+ Fe3+ 検出 KSCN ベルリン青',
+      points: [
+        'Fe2+ は「3価のシアン錯塩」と濃青色沈殿、Fe3+ は「2価のシアン錯塩」と濃青色沈殿！',
+        'Fe3+ ＋ KSCN → 血赤色「溶液」（沈殿ではない！）。'
+      ],
+      steps: [
+        { icon: '🔵', title: 'ステップ1：濃青色沈殿', desc: '鉄イオンの価数が違う組合せ（2+と3価、3+と2価）で濃青色沈殿ができます。' },
+        { icon: '🩸', title: 'ステップ2：KSCNで血赤色', desc: 'Fe3+にKSCNを加えると鮮やかな血赤色溶液になります。' }
+      ]
+    }
+  );
+
+  const chemOrg = chem.units.find((u) => u.id === 'chem_org');
+  chemOrg.experiments.push(
+    {
+      id: 'chem_elemental',
+      name: '有機化合物の<ruby>元<rt>げん</rt>素<rt>そ</rt>分<rt>ぶん</rt>析<rt>せき</rt></ruby>',
+      summary: '酸化銅(II)とともに有機物を完全燃焼させ、生じたH2OとCO2を吸収管で捕集して組成式を決める実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '燃焼ガスを通す2つの吸収管の「順番」と色変化を確認しよう！',
+        stages: [
+          { label: '🔥 酸化銅(II) CuO とともに加熱して完全燃焼', visual: '🔥', bg: 'rgba(239,68,68,0.4)', text: '試料中の C は CO2 に、H は H2O に完全に変わります。' },
+          { label: '💧 ① 塩化カルシウム管（H2Oを吸収）', visual: '🔵', bg: 'rgba(56,189,248,0.45)', text: '先に H2O を吸収！（※無水硫酸銅(II)を置くと白→青に変わる）' },
+          { label: '🫧 ② ソーダ石灰管（CO2を吸収）', visual: '⚪', bg: 'rgba(226,232,240,0.55)', text: '次に CO2 を吸収！もし逆にするとソーダ石灰がH2Oも吸ってしまうので順番絶対厳守！' }
+        ]
+      },
+      equipmentIds: ['gas_burner', 'test_tube'],
+      youtubeQuery: '高校化学 元素分析 塩化カルシウム ソーダ石灰',
+      points: [
+        '必ず「① 塩化カルシウム（H2O吸収）→ ② ソーダ石灰（CO2吸収）」の順！',
+        '酸素 O の質量は直接測れないため、「元の試料質量 － (Cの質量 ＋ Hの質量)」で求める！'
+      ],
+      steps: [
+        { icon: '🔥', title: 'ステップ1：完全燃焼', desc: 'CuOを触媒兼酸素供給源としてCO2とH2Oにします。' },
+        { icon: '📏', title: 'ステップ2：質量増加を測定', desc: 'CaCl2管でH2O、ソーダ石灰管でCO2の質量を測ります。' }
+      ]
+    },
+    {
+      id: 'chem_alcohol_ox',
+      name: 'アルコールの<ruby>酸<rt>さん</rt>化<rt>か</rt></ruby>（1級・2級・3級）',
+      summary: '赤熱した銅線や二クロム酸カリウムでアルコールを酸化し、級数による生成物の違いを確かめる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '1級・2級・3級アルコールが酸化されると何に変わるか試そう！',
+        stages: [
+          { label: '1️⃣ 第1級アルコール（エタノール）を酸化', visual: '🍏➡️🍶', bg: 'rgba(74,222,128,0.5)', text: 'まず「アルデヒド（アセトアルデヒド）」になり、さらに酸化すると「カルボン酸（酢酸）」になる！' },
+          { label: '2️⃣ 第2級アルコール（2-プロパノール）を酸化', visual: '🧪', bg: 'rgba(56,189,248,0.5)', text: '「ケトン（アセトン）」になってストップ！' },
+          { label: '3️⃣ 第3級アルコール（2-メチル-2-プロパノール）', visual: '❌', bg: 'rgba(203,213,225,0.45)', text: 'Cに直結したHがないため、穏やかな条件では「酸化されない」！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'gas_burner'],
+      youtubeQuery: '高校化学 アルコールの酸化 銅線 実験',
+      points: [
+        '第1級 → アルデヒド → カルボン酸 ／ 第2級 → ケトン ／ 第3級 → 酸化されない！',
+        '酸化剤 K2Cr2O7(橙赤) を使うと、還元されて Cr3+(緑色) に変色する。'
+      ],
+      steps: [
+        { icon: '1️⃣', title: 'ステップ1：第1級', desc: '2段階でカルボン酸まで酸化されます。' },
+        { icon: '2️⃣', title: 'ステップ2：第2級・第3級', desc: '2級はケトンで止まり、3級は酸化されません。' }
+      ]
+    },
+    {
+      id: 'chem_phenol',
+      name: 'フェノール<ruby>類<rt>るい</rt></ruby>の<ruby>検<rt>けん</rt>出<rt>しゅつ</rt></ruby>（FeCl3・臭素水）',
+      summary: 'フェノール水溶液に塩化鉄(III)水溶液や臭素水を加えて、特有の呈色と沈殿を確認する実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'フェノールを確実に検出する2つの定番反応を試そう！',
+        stages: [
+          { label: '🟣 塩化鉄(III) FeCl3 水溶液を加える', visual: '🟣', bg: 'rgba(126,34,206,0.65)', text: '青紫色〜赤紫色に呈色！フェノール性ヒドロキシ基（ベンゼン環直結 -OH）の証拠！' },
+          { label: '⚪ 臭素水（赤褐色）を加える', visual: '⚪', bg: 'rgba(241,245,249,0.75)', text: '臭素水の赤褐色が消え、2,4,6-トリブロモフェノールの「白色沈殿」が生成！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'pipette'],
+      youtubeQuery: '高校化学 フェノール 塩化鉄 臭素水 実験',
+      points: [
+        'FeCl3 による青紫色呈色は「フェノール類（サリチル酸含む）」の決定的証拠！',
+        '炭酸（H2CO3）より弱い酸なので、炭酸水素ナトリウム（NaHCO3）とは反応しない！'
+      ],
+      steps: [
+        { icon: '🟣', title: 'ステップ1：FeCl3呈色', desc: 'フェノール性OHがあると青〜赤紫色に変化します。' },
+        { icon: '⚪', title: 'ステップ2：臭素水と白色沈殿', desc: 'オルト・パラ位にBrが3つ置換した白色沈殿ができます。' }
+      ]
+    },
+    {
+      id: 'chem_aromatic_sep',
+      name: '<ruby>芳<rt>ほう</rt>香<rt>こう</rt>族<rt>ぞく</rt></ruby>化合物の<ruby>分<rt>ぶん</rt>離<rt>り</rt></ruby>（分液漏斗）',
+      summary: 'アニリン・安息香酸・フェノール・ニトロベンゼンの混合エーテル溶液を酸・塩基の強弱で順番に分ける実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '分液漏斗を使って、4つの芳香族化合物を水層とエーテル層に順番に振り分けよう！',
+        stages: [
+          { label: '① 希塩酸（HCl）を加えて振る', visual: '🧪', bg: 'rgba(186,230,253,0.45)', text: '塩基性の「アニリン」だけが塩になって水層へ移動！分離完了！' },
+          { label: '② 炭酸水素ナトリウム（NaHCO3）を加えて振る', visual: '🫧', bg: 'rgba(134,239,172,0.45)', text: '強い酸の「安息香酸」だけが塩になって水層へ移動！（フェノールは弱酸なので反応せず残る！）' },
+          { label: '③ 水酸化ナトリウム（NaOH）を加えて振る', visual: '✨', bg: 'rgba(253,224,71,0.45)', text: '弱酸の「フェノール」が塩になって水層へ！残ったエーテル層が中性の「ニトロベンゼン」！' }
+        ]
+      },
+      equipmentIds: ['separatory_funnel', 'beaker'],
+      youtubeQuery: '高校化学 芳香族化合物の分離 分液漏斗',
+      points: [
+        '酸の強さ：カルボン酸（安息香酸）＞ 炭酸（H2CO3）＞ フェノール！',
+        'この強弱の差を使うため、②でNaHCO3、③でNaOHの順に加えるのが絶対ルール！'
+      ],
+      steps: [
+        { icon: '1️⃣', title: 'ステップ1：HClで塩基を分離', desc: 'アニリンを塩酸塩にして水層へ移します。' },
+        { icon: '2️⃣', title: 'ステップ2：NaHCO3とNaOH', desc: '酸の強さの差を利用して安息香酸とフェノールを別々に分けます。' }
+      ]
+    },
+    {
+      id: 'chem_sugar',
+      name: '<ruby>糖<rt>とう</rt>類<rt>るい</rt></ruby>の還元性とデンプンの<ruby>加<rt>か</rt>水<rt>すい</rt>分<rt>ぶん</rt>解<rt>かい</rt></ruby>',
+      summary: '単糖・二糖の還元性の違いと、デンプンを酸で加水分解したときのヨウ素反応の変化を調べる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'スクロースが還元性を持たないことや、デンプン分解後の変化を確かめよう！',
+        stages: [
+          { label: '🍯 グルコース・マルトース＋フェーリング液加熱', visual: '🧱', bg: 'rgba(220,38,38,0.6)', text: '還元性があるため、Cu2O の赤色沈殿が生じた！' },
+          { label: '🍬 スクロース（ショ糖）＋フェーリング液加熱', visual: '🔵', bg: 'rgba(56,189,248,0.55)', text: '還元性がないため青いまま！（希硫酸で加水分解するとグルコース＋フルクトースになり還元性復活！）' },
+          { label: '🥔 デンプンを希硫酸で加熱後、ヨウ素液を加える', visual: '🟤➡️⚪', bg: 'rgba(254,240,138,0.5)', text: '最初は青紫色だったのが、分解が進むと赤紫色→無色（ヨウ素反応陰性）に！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'water_bath'],
+      youtubeQuery: '高校化学 糖類 還元性 デンプン 加水分解 実験',
+      points: [
+        'スクロース（ショ糖）は二糖類の中で唯一「還元性なし」！',
+        '加水分解後の溶液にフェーリング液を使うときは、必ず先に NaOH で中和してから行う！'
+      ],
+      steps: [
+        { icon: '🧱', title: 'ステップ1：還元性の有無', desc: 'スクロース以外はすべて還元性を示します。' },
+        { icon: '🥔', title: 'ステップ2：デンプンの分解', desc: 'ヨウ素デンプン反応の青紫色が徐々に消えていきます。' }
+      ]
+    }
+  );
+
+  const chemPolymer = chem.units.find((u) => u.id === 'chem_polymer');
+  chemPolymer.experiments.push({
+    id: 'chem_soap',
+    name: 'セッケンの合成（<ruby>け<rt>け</rt>ん<rt>ん</rt>化<rt>か</rt></ruby>）と<ruby>塩<rt>えん</rt>析<rt>せき</rt></ruby>',
+    summary: '植物油（油脂）に水酸化ナトリウムとエタノールを加えて加熱し、飽和食塩水でセッケンを取り出す実験。',
+    playable: true,
+    simType: 'step_lab',
+    simConfig: {
+      guide: '油脂をけん化して、飽和食塩水でセッケンを析出（塩析）させよう！',
+      stages: [
+        { label: '🛢️ 油脂＋NaOH水溶液＋エタノールを加熱', visual: '♨️', bg: 'rgba(254,240,138,0.5)', text: 'エタノールは油と水を混ざりやすくするために加えます！けん化が進みセッケンが生成！' },
+        { label: '🧂 飽和食塩水（NaCl）に注ぐ（塩析）', visual: '🧼✨', bg: 'rgba(241,245,249,0.75)', text: '水への溶解度が下がり、白い固体のセッケン（R-COONa）が上部に浮かび上がった！' }
+      ]
+    },
+    equipmentIds: ['beaker', 'water_bath'],
+    youtubeQuery: '高校化学 セッケン けん化 塩析 実験',
+    points: [
+      'エタノールを加える理由：水と油を均一に混ぜて反応を速めるため！',
+      'セッケン水溶液は弱塩基性を示し、硬水（Ca2+, Mg2+）では不溶性の沈殿ができて泡立たない！'
+    ],
+    steps: [
+      { icon: '♨️', title: 'ステップ1：けん化', desc: '油脂を強塩基で加水分解して脂肪酸ナトリウムにします。' },
+      { icon: '🧼', title: 'ステップ2：塩析', desc: '飽和食塩水に注いでセッケンを固体として析出させます。' }
+    ]
+  });
+
+  const bioCell = bio.units.find((u) => u.id === 'bio_cell');
+  bioCell.experiments.push(
+    {
+      id: 'bio_micrometer',
+      name: 'ミクロメーターによる<ruby>細<rt>さい</rt>胞<rt>ぼう</rt></ruby>サイズ測定',
+      summary: '対物ミクロメーター（1目盛り10μm）と接眼ミクロメーターの目盛りを重ねて、実際の細胞の長さを測る実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '倍率（接眼1目盛りあたりの長さ）を確認して、15目盛り分の細胞の大きさを計算しよう！',
+        label: '対物1目盛り(10μm)と一致する接眼目盛り数（10〜20）',
+        min: 2,
+        max: 10,
+        initial: 4,
+        unit: '目盛り（対物4目盛り＝40μm に対し）',
+        targetCheck: (v) => v === 8,
+        describe: (v) => {
+          const perUnit = (40 / v).toFixed(1);
+          const cellSize = (perUnit * 15).toFixed(0);
+          return {
+            bg: 'rgba(134, 239, 172, 0.45)',
+            icon: '📏🔬',
+            status: `接眼1目盛り ＝ ${perUnit} μm！細胞が15目盛りなら大きさは ${cellSize} μm！（※倍率を変えたら再測定必須！）`
+          };
+        }
+      },
+      equipmentIds: ['microscope'],
+      youtubeQuery: '高校生物 ミクロメーター 使い方 計算',
+      points: [
+        '対物ミクロメーターの1目盛りは倍率に関係なく常に「10 μm（0.01 mm）」！',
+        '対物レンズの倍率を変えると「接眼ミクロメーター1目盛りが表す長さ」も変わるため、必ず計り直す！'
+      ],
+      steps: [
+        { icon: '📏', title: 'ステップ1：1目盛りの値を求める', desc: '対物と接眼の目盛りが重なる2点を探し、割り算で1目盛りを求めます。' },
+        { icon: '🔬', title: 'ステップ2：細胞を測る', desc: 'プレパラートに替え、細胞が接眼何目盛り分か数えて掛け算します。' }
+      ]
+    },
+    {
+      id: 'bio_streaming',
+      name: 'オオカナダモの<ruby>原<rt>げん</rt>形<rt>けい</rt>質<rt>しつ</rt>流<rt>りゅう</rt>動<rt>どう</rt></ruby>',
+      summary: '生きているオオカナダモの葉を顕微鏡で覗き、葉緑体が細胞内を一方向に流れる様子を観察する実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '水温・光の条件を変えて、葉緑体の動く速さ（原形質流動）がどう変わるか観察しよう！',
+        label: '水温（℃）',
+        min: 5,
+        max: 40,
+        initial: 15,
+        unit: '℃',
+        targetCheck: (v) => v >= 28,
+        describe: (v) => {
+          if (v < 12) return { bg: 'rgba(186,230,253,0.45)', icon: '🌿🐢', status: '冷たくて動きがとてもゆっくり…' };
+          if (v <= 32) return { bg: 'rgba(74,222,128,0.55)', icon: '🌿💨', status: '葉緑体が液胞の周りをグルグル活発に流れている！（原形質流動：ATPとミオシン・アクチン繊維による運動！）' };
+          return { bg: 'rgba(251,191,36,0.4)', icon: '🌿⚠️', status: '高水温でタンパク質が傷み動きが鈍くなってきた…' };
+        }
+      },
+      equipmentIds: ['microscope'],
+      youtubeQuery: '高校生物 オオカナダモ 原形質流動 観察',
+      points: [
+        '葉緑体自身が泳ぐのではなく、モータータンパク質（ミオシン）とアクチンフィラメントが細胞質を動かしている！',
+        '生きている細胞でしか見られず、適切な温度（25〜30℃）や光で活発になる。'
+      ],
+      steps: [
+        { icon: '🌿', title: 'ステップ1：葉をセット', desc: '若い葉を水でマウントし、中肋（中央）付近の細胞を観察します。' },
+        { icon: '🔄', title: 'ステップ2：葉緑体の移動', desc: '細胞壁に沿って一方向に流れる様子が確認できます。' }
+      ]
+    },
+    {
+      id: 'bio_amylase',
+      name: 'アミラーゼによるデンプン<ruby>分<rt>ぶん</rt>解<rt>かい</rt></ruby>',
+      summary: 'だ液（アミラーゼ）をデンプン溶液に加え、ヨウ素液とベネジクト液で分解を確かめる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'デンプン＋だ液を37℃で保温したあと、2種類の試薬で分解されたかテストしよう！',
+        stages: [
+          { label: '🌡️ 37℃で10分間保温（比較：氷水・煮沸）', visual: '🧪', bg: 'rgba(254,240,138,0.45)', text: '37℃の試験管だけアミラーゼが活発に働き、デンプンがマルトース（麦芽糖）へ分解された！' },
+          { label: '🟣 ヨウ素液を加える', visual: '🟤', bg: 'rgba(180,83,9,0.4)', text: '青紫色にならない（茶褐色のまま）＝デンプンがなくなった証拠！' },
+          { label: '🧱 ベネジクト液を加えて加熱する', visual: '🧱', bg: 'rgba(220,38,38,0.55)', text: '赤褐色沈殿（Cu2O）が出た！還元糖（マルトース）が生じた決定的証拠！' }
+        ]
+      },
+      equipmentIds: ['test_tube', 'water_bath'],
+      youtubeQuery: '高校生物 アミラーゼ ヨウ素液 ベネジクト液 実験',
+      points: [
+        'ヨウ素反応が「陰性」＋ベネジクト反応が「陽性（加熱必須！）」なら分解成功！',
+        'ベネジクト液は必ず「加熱（沸騰石入りで軽く煮沸）」しないと赤褐色にならない！'
+      ],
+      steps: [
+        { icon: '🟤', title: 'ステップ1：ヨウ素液', desc: '分解されていれば青紫色にならず茶褐色のままです。' },
+        { icon: '🧱', title: 'ステップ2：ベネジクト液＋加熱', desc: '生じたマルトースにより赤褐色沈殿ができます。' }
+      ]
+    }
+  );
+
+  const bioGene = bio.units.find((u) => u.id === 'bio_gene');
+  bioGene.experiments.push(
+    {
+      id: 'bio_salivary',
+      name: 'だ<ruby>腺<rt>せん</rt></ruby><ruby>染<rt>せん</rt>色<rt>しょく</rt>体<rt>たい</rt></ruby>とパフの観察',
+      summary: 'ユスリカやショウジョウバエ幼虫のだ腺を取り出し、巨大な染色体と膨らみ（パフ）を観察する実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'だ腺染色体の特徴と「パフ」の正体をステップで確認しよう！',
+        stages: [
+          { label: '🪱 ユスリカ幼虫の頭部から「だ腺」を取り出す', visual: '🔬', bg: 'rgba(186,230,253,0.45)', text: 'DNA複製を1000回ほど繰り返して分裂しない「多糸染色体（巨大染色体）」がある！' },
+          { label: '🔴 酢酸カーミン等で染色して観察', visual: '🧬🔴', bg: 'rgba(244,114,182,0.5)', text: '横縞（バンド）と、ほどけて膨らんだ「パフ」が見える！パフでは盛んに「mRNAの転写」が行われている！' }
+        ]
+      },
+      equipmentIds: ['microscope'],
+      youtubeQuery: '高校生物 だ腺染色体 パフ ユスリカ 観察',
+      points: [
+        'だ腺染色体は核分裂を伴わずDNA複製だけを繰り返したため、通常の約100倍太く光学顕微鏡でも見やすい！',
+        '膨らんだ部分「パフ」は、特定の遺伝子が活性化して「転写（mRNA合成）」している場所！'
+      ],
+      steps: [
+        { icon: '🪱', title: 'ステップ1：だ腺の摘出', desc: '幼虫の頭と胴の間から透明な一対のだ腺を取り出します。' },
+        { icon: '🧬', title: 'ステップ2：パフの観察', desc: '染色体がほどけて膨らんだパフは、盛んに転写中の証拠です。' }
+      ]
+    },
+    {
+      id: 'bio_electrophoresis',
+      name: 'DNAの<ruby>電<rt>でん</rt>気<rt>き</rt>泳<rt>えい</rt>動<rt>どう</rt></ruby>とPCR法',
+      summary: '制限酵素で切断したDNAをゲルの中で電気的に移動させ、長さごとに分離・比較する実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '負（－）に帯電したDNAに電圧をかけて、長さごとに分かれる様子を見よう！',
+        stages: [
+          { label: '🧬 ゲルの穴（ウェル）にDNAを入れる', visual: '🧫', bg: 'rgba(226,232,240,0.45)', text: 'DNAはリン酸基により「負（－）の電荷」を帯びています。' },
+          { label: '⚡ 電源ON（－極から＋極へ向けて移動！）', visual: '⚡📊', bg: 'rgba(56,189,248,0.45)', text: '短いDNA断片ほどゲルの網目をすり抜けやすく「速く遠く（＋極側）まで移動」し、バンドに分かれた！' }
+        ]
+      },
+      equipmentIds: ['electrophoresis_box', 'power_supply'],
+      youtubeQuery: '高校生物 DNA 電気泳動 PCR 実験',
+      points: [
+        'DNAはリン酸基のため負（－）に帯電 → 必ず「＋極側」へ移動する！',
+        '短いDNA断片ほど速く遠くへ移動し、長い断片は手前に残る！'
+      ],
+      steps: [
+        { icon: '🧫', title: 'ステップ1：サンプル注入', desc: 'アガロースゲルのくぼみにDNA断片を入れます。' },
+        { icon: '⚡', title: 'ステップ2：サイズ分離', desc: '＋極側へ移動させ、紫外線等でバンドの位置を確認します。' }
+      ]
+    },
+    {
+      id: 'bio_gfp',
+      name: '大腸菌の<ruby>形<rt>けい</rt>質<rt>しつ</rt>転<rt>てん</rt>換<rt>かん</rt></ruby>（GFP）',
+      summary: 'オワンクラゲの緑色蛍光タンパク質（GFP）遺伝子を含むプラスミドを大腸菌に取り込ませる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: 'プラスミド導入から抗生物質（アンピシリン）培地での選別までを体験しよう！',
+        stages: [
+          { label: '🦠 CaCl2処理＋ヒートショック（42℃）で導入', visual: '🧪', bg: 'rgba(186,230,253,0.45)', text: '一時的に細胞膜に隙間ができ、GFP＆アンピシリン耐性遺伝子をもつプラスミドが入った！' },
+          { label: '🧫 アンピシリン入り培地で培養→紫外線照射！', visual: '🟢✨', bg: 'rgba(34,197,94,0.65)', text: '形質転換した大腸菌だけが生き残り、UVを当てると緑色にピカッと光った！' }
+        ]
+      },
+      equipmentIds: ['pipette', 'water_bath'],
+      youtubeQuery: '高校生物 大腸菌 形質転換 GFP 実験',
+      points: [
+        '選択マーカー（アンピシリン耐性遺伝子）を使うことで、プラスミドを取り込んだ菌だけを選別できる！',
+        'アラビノースなどの誘導物質があるとプロモーターが働き GFP が発現する。'
+      ],
+      steps: [
+        { icon: '🧪', title: 'ステップ1：ヒートショック', desc: '氷冷と42℃加熱でプラスミドを菌体内に入れます。' },
+        { icon: '🟢', title: 'ステップ2：選択培地で発光', desc: '生き残ったコロニーにUVを当てると緑色に光ります！' }
+      ]
+    }
+  );
+  bio.units.push({
+    id: 'bio_body',
+    name: '<ruby>発<rt>はっ</rt>生<rt>せい</rt></ruby>・<ruby>体<rt>たい</rt>内<rt>ない</rt>環<rt>かん</rt>境<rt>きょう</rt></ruby>・<ruby>生<rt>せい</rt>態<rt>たい</rt></ruby>',
+    experiments: [
+      {
+        id: 'bio_seaurchin',
+        name: 'ウニの<ruby>受<rt>じゅ</rt>精<rt>せい</rt></ruby>と<ruby>初<rt>しょ</rt>期<rt>き</rt>発<rt>はっ</rt>生<rt>せい</rt></ruby>',
+        summary: 'ウニの卵に精子を加えて受精膜が上がる瞬間から、卵割・胞胚・原腸胚までの発生を観察する実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '受精から原腸胚までの劇的な変化を順番に観察しよう！',
+          stages: [
+            { label: '🥚 卵に精子を加える（受精膜の形成）', visual: '⭕✨', bg: 'rgba(254,240,138,0.45)', text: '1匹の精子が侵入した瞬間、卵の表面に「受精膜」が上がり他の精子の侵入（多精）をブロック！' },
+            { label: '➗ 卵割（2細胞→4細胞→桑実胚→胞胚）', visual: '🫧', bg: 'rgba(186,230,253,0.45)', text: '細胞は成長せず分割だけが進むため、1個あたりの細胞はどんどん小さくなる（等割）！' },
+            { label: '🌀 胞胚→原腸胚（陥入・原口の形成）', visual: '🟢', bg: 'rgba(74,222,128,0.5)', text: '植物極側が内側に陥入して原腸ができ、ウニの場合は「原口」が将来の肛門になる！' }
+          ]
+        },
+        equipmentIds: ['microscope', 'pipette'],
+        youtubeQuery: '高校生物 ウニ 受精 発生 観察',
+        points: [
+          'ウニの卵割は「等割」（カエルは動物極側が小さく割れる「不等割」）。',
+          '受精膜の形成は「多精拒否」の仕組み！'
+        ],
+        steps: [
+          { icon: '⭕', title: 'ステップ1：受精膜の形成', desc: '先体反応・表層反応により受精膜が持ち上がります。' },
+          { icon: '🌀', title: 'ステップ2：卵割と原腸陥入', desc: '桑実胚・胞胚を経て、原腸が陥入していきます。' }
+        ]
+      },
+      {
+        id: 'bio_blood',
+        name: '<ruby>血<rt>けっ</rt>液<rt>えき</rt></ruby>の観察・<ruby>凝<rt>ぎょう</rt>固<rt>こ</rt></ruby>とABO判定',
+        summary: '血液凝固の仕組み（フィブリン網・Ca2+の必要性）と、抗A・抗B血清によるABO式血液型判定を学ぶ実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '血液凝固の条件と、ABO式血液型（凝集反応）の判定ルールを体験しよう！',
+          stages: [
+            { label: '🩸 血液にシュウ酸ナトリウム（Ca2+除去）を加える', visual: '💧', bg: 'rgba(239,68,68,0.45)', text: 'Ca2+ が奪われるとプロトロンビン→トロンビンになれず、血液が固まらない！' },
+            { label: '🕸️ Ca2+ ありで放置（フィブリン形成）', visual: '🕸️', bg: 'rgba(185,28,28,0.65)', text: '繊維状の「フィブリン」が網を作り、赤血球を絡め取って血ぺい（血餅）が完成！' },
+            { label: '🔬 抗A血清だけで凝集（抗Bでは凝集せず）', visual: '🅰️', bg: 'rgba(250,204,21,0.45)', text: '赤血球表面に凝集原Aだけがある＝「A型」と判定！（両方凝集＝AB型、両方なし＝O型）' }
+          ]
+        },
+        equipmentIds: ['microscope', 'pipette'],
+        youtubeQuery: '高校生物 血液凝固 ABO式血液型 実験',
+        points: [
+          '血液凝固は「フィブリノーゲン → フィブリン」の酵素反応で、Ca2+ が必須！',
+          '「凝固（血餅＋血清）」と「凝集（抗原抗体反応による赤血球の塊）」を混同しないよう注意！'
+        ],
+        steps: [
+          { icon: '🕸️', title: 'ステップ1：血液凝固', desc: 'トロンビンの働きでフィブリン網が形成されます。' },
+          { icon: '🅰️', title: 'ステップ2：ABO血液型判定', desc: '抗A血清・抗B血清との凝集の有無で判定します。' }
+        ]
+      },
+      {
+        id: 'bio_blindspot',
+        name: '<ruby>盲<rt>もう</rt>斑<rt>はん</rt></ruby>（マリオット盲点）の実験',
+        summary: '片目で十字を見つめながら黒丸を動かすと、視神経が集まる盲斑に像が映って急に消える現象を確かめる実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '右目・左目の網膜における「盲斑」の仕組みを体験しよう！',
+          stages: [
+            { label: '👁️ 左目を閉じて右目で「＋」を見つめ、右の「●」を遠ざける', visual: '➕　　　⚫', bg: 'rgba(186,230,253,0.45)', text: 'ある距離になると突然「●」が消えた！網膜の「盲斑（視細胞がない場所）」に像が結ばれたため！' },
+            { label: '🧠 なぜ普段は穴が空いて見えないの？', visual: '🧠✨', bg: 'rgba(134,239,172,0.5)', text: 'もう片方の目が補い、脳が周囲の色や模様で自然に補完しているからです！' }
+          ]
+        },
+        equipmentIds: ['stopwatch'],
+        youtubeQuery: '高校生物 盲斑 マリオット盲点 実験',
+        points: [
+          '盲斑（視神経乳頭）は視神経が束になって眼球から出ていく部分で、錐体細胞も桿体細胞も存在しない！',
+          '中心部（黄斑）には色を見分ける「錐体細胞」が多く集中している。'
+        ],
+        steps: [
+          { icon: '👁️', title: 'ステップ1：像が消える距離', desc: '盲斑に像が重なると視覚情報が送られなくなります。' },
+          { icon: '🧠', title: 'ステップ2：脳の補完', desc: '盲斑の位置は周囲と同じ背景として脳が補っています。' }
+        ]
+      },
+      {
+        id: 'bio_quadrat',
+        name: 'コドラート法による<ruby>植<rt>しょく</rt>生<rt>せい</rt></ruby>調査',
+        summary: '1m四方などの枠（コドラート）を地面に置き、被度や頻度からその地域の優占種を調べる生態調査。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: 'コドラート（方形枠）を設置して植物の被度・頻度を記録する流れを体験しよう！',
+          stages: [
+            { label: '🔲 調査地に 1m×1m のコドラートを設置する', visual: '🔲🌿', bg: 'rgba(74,222,128,0.4)', text: '均一な植生エリアを選び、ランダムまたは一定間隔で枠を複数配置します。' },
+            { label: '📊 優占度（被度・頻度）を計算する', visual: '📈', bg: 'rgba(186,230,253,0.45)', text: '最も広い面積を占め（被度大）、どの枠にもよく出る（頻度大）種が「優占種」に決定！' }
+          ]
+        },
+        equipmentIds: ['stopwatch'],
+        youtubeQuery: '高校生物 コドラート法 植生調査',
+        points: [
+          '最小面積：枠を少しずつ広げても出現種数がほぼ増えなくなる面積。',
+          '優占種はその群集の環境や構造を最も強く支配している植物種！'
+        ],
+        steps: [
+          { icon: '🔲', title: 'ステップ1：枠の配置', desc: '方形枠を置いて中の植物種と面積を記録します。' },
+          { icon: '📊', title: 'ステップ2：優占種の決定', desc: '被度や頻度をもとに優占種を特定します。' }
+        ]
+      }
+    ]
+  });
+
+  const physMech = phys.units.find((u) => u.id === 'phys_mech');
+  physMech.experiments.push(
+    {
+      id: 'phys_monkey',
+      name: 'モンキーハンティング（<ruby>放<rt>ほう</rt>物<rt>ぶつ</rt>運<rt>うん</rt>動<rt>どう</rt></ruby>）',
+      summary: '銃口をサルに向けたまま弾を撃つと同時にサルが木から落ちても、必ず空中で命中することを確かめる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '「等速直線運動＋自由落下」の合成と、サルの自由落下の関係を検証しよう！',
+        stages: [
+          { label: '🎯 発射と同時にサルが落下開始（初速どんな速さでもOK！）', visual: '🐒💨', bg: 'rgba(186,230,253,0.45)', text: '弾もサルも同じ重力加速度 g で下向きに落下するため、同じ時刻には同じ距離 1/2 gt² だけ下に落ちる！' },
+          { label: '💥 必ず空中で命中！！', visual: '🎯✨', bg: 'rgba(74,222,128,0.55)', text: 'つまり「重力がなかった場合の直線軌道」から、弾もサルも常に同じだけ下にズレるため必ず当たる！' }
+        ]
+      },
+      equipmentIds: ['stopwatch'],
+      youtubeQuery: '高校物理 モンキーハンティング 実験',
+      points: [
+        '水平方向は「等速直線運動」、鉛直方向は弾もサルも共通の加速度 g の運動！',
+        '弾の初速が速いほど「高い位置」で命中し、遅いほど「低い位置」で命中する（地面に落ちる前なら必ず当たる！）。'
+      ],
+      steps: [
+        { icon: '🎯', title: 'ステップ1：同時スタート', desc: '弾の発射と同時にサルが自由落下を始めます。' },
+        { icon: '💥', title: 'ステップ2：同一鉛直落下', desc: '1/2 gt² の落下分が完全に一致するため必ず命中します。' }
+      ]
+    },
+    {
+      id: 'phys_friction',
+      name: '<ruby>静<rt>せい</rt>止<rt>し</rt>摩<rt>ま</rt>擦<rt>さつ</rt>角<rt>かく</rt></ruby>と摩擦係数の測定',
+      summary: '板の上に物体を置いて徐々に傾け、滑り始める瞬間の角度 θ から静止摩擦係数 μ = tanθ を求める実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '板の角度 θ を上げて、物体がちょうど滑り出す「静止摩擦角（例：31°付近）」を見つけよう！',
+        label: '板の傾き θ（度）',
+        min: 0,
+        max: 45,
+        initial: 10,
+        unit: '°',
+        targetCheck: (v) => v >= 31,
+        describe: (v) => {
+          const tanVal = Math.tan((v * Math.PI) / 180).toFixed(2);
+          if (v < 31) return { bg: 'rgba(186,230,253,0.45)', icon: '📦', status: `まだ止まっている（静止摩擦力 ＝ mg sinθ、tanθ = ${tanVal}）` };
+          if (v === 31) return { bg: 'rgba(250,204,21,0.55)', icon: '📦⚡', status: `【ちょうど滑り出す瞬間！】静止摩擦角 θ0 = 31° → 静止摩擦係数 μ = tan31° ≈ ${tanVal}！` };
+          return { bg: 'rgba(239,68,68,0.4)', icon: '📦💨', status: `滑り落ちた！（今は動摩擦力 μ'mg cosθ が働いている）` };
+        }
+      },
+      equipmentIds: ['stopwatch'],
+      youtubeQuery: '高校物理 静止摩擦角 摩擦係数 実験',
+      points: [
+        '滑り始める瞬間のつり合い：mg sinθ0 = μ・mg cosθ0 → 質量 m や重力 g に関係なく μ = tanθ0！',
+        '一般に 静止摩擦係数 μ ＞ 動摩擦係数 μ\'！'
+      ],
+      steps: [
+        { icon: '📐', title: 'ステップ1：板を傾ける', desc: '角度を増やすと下向きの重力成分 mg sinθ が大きくなります。' },
+        { icon: '📦', title: 'ステップ2：μ = tanθ0', desc: '滑り出す瞬間の角度の正接がそのまま静止摩擦係数になります。' }
+      ]
+    },
+    {
+      id: 'phys_spring',
+      name: 'フックの法則と<ruby>ば<rt>ば</rt>ね<rt>ね</rt>振<rt>ふ</rt>り子<rt>こ</rt></ruby>の周期',
+      summary: 'ばねにおもりをつるして伸びからばね定数 k を求め、振動周期 T = 2π√(m/k) を確かめる実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: 'おもりの質量 m（kg）を変えて、ばね振り子の周期 T がどう変化するか確かめよう！',
+        label: 'おもりの質量 m（kg）',
+        min: 0.1,
+        max: 1.0,
+        initial: 0.2,
+        unit: 'kg',
+        targetCheck: (v) => v >= 0.8,
+        describe: (v) => {
+          const k = 10;
+          const T = (2 * Math.PI * Math.sqrt(v / k)).toFixed(2);
+          return {
+            bg: 'rgba(134,239,172,0.45)',
+            icon: '🌀',
+            status: `ばね定数 k=10 N/m のとき、周期 T = ${T} 秒！（単振り子と違い、質量 m に依存し重力 g には無関係！）`
+          };
+        }
+      },
+      equipmentIds: ['stopwatch'],
+      youtubeQuery: '高校物理 ばね振り子 周期 フックの法則 実験',
+      points: [
+        'ばね振り子の周期 T = 2π√(m / k)：おもりが重いほど周期は長く、ばねが硬い(k大)ほど短い！',
+        '重力加速度 g に依存しないため、月面やエレベーター内でも周期は同じ！'
+      ],
+      steps: [
+        { icon: '📏', title: 'ステップ1：k を求める', desc: 'F = kx（フックの法則）からばね定数 k を測定します。' },
+        { icon: '🌀', title: 'ステップ2：単振動の周期', desc: '縦に揺らして10往復の時間を測り、2π√(m/k) と一致することを確かめます。' }
+      ]
+    }
+  );
+
+  phys.units.push({
+    id: 'phys_thermo',
+    name: '<ruby>熱<rt>ねつ</rt>力<rt>りき</rt>学<rt>がく</rt></ruby>（比熱・気体の法則）',
+    experiments: [
+      {
+        id: 'phys_heat_cap',
+        name: '<ruby>水<rt>みず</rt>熱<rt>ねつ</rt>量<rt>りょう</rt>計<rt>けい</rt></ruby>による金属の<ruby>比<rt>ひ</rt>熱<rt>ねつ</rt></ruby>測定',
+        summary: '熱湯で100℃に熱した金属球を冷たい水に入れ、熱平衡後の温度から金属の比熱を求める実験。',
+        playable: true,
+        simType: 'step_lab',
+        simConfig: {
+          guide: '熱量保存の法則（高温物体が失った熱 ＝ 低温物体が得た熱）を体験しよう！',
+          stages: [
+            { label: '♨️ 金属球（100g）を沸騰水で 100℃ に温める', visual: '🔴♨️', bg: 'rgba(239,68,68,0.45)', text: '金属球の温度は 100℃ になりました。' },
+            { label: '🥤 水熱量計（20℃の水100g）へ素早く投入！', visual: '🌡️✨', bg: 'rgba(56,189,248,0.45)', text: '全体の温度が 27.3℃ で一定（熱平衡）になった！計算すると比熱 c ≈ 0.45 J/(g・K) → 鉄と判明！' }
+          ]
+        },
+        equipmentIds: ['calorimeter', 'water_bath'],
+        youtubeQuery: '高校物理 比熱の測定 水熱量計 実験',
+        points: [
+          '熱量保存則：m金・c金・(100 - t) ＝ (m水・c水 ＋ C容器)・(t - 20)',
+          '容器の「熱容量 C」を忘れないことが入試計算の最大ポイント！'
+        ],
+        steps: [
+          { icon: '🔴', title: 'ステップ1：金属を加熱', desc: '100℃の熱湯中で金属球の温度を均一にします。' },
+          { icon: '🌡️', title: 'ステップ2：熱平衡温度の測定', desc: '冷水に投入し、かき混ぜて最高温度（熱平衡）を読み取ります。' }
+        ]
+      },
+      {
+        id: 'phys_boyle',
+        name: 'ボイル・シャルルの<ruby>法<rt>ほう</rt>則<rt>そく</rt></ruby>',
+        summary: '気体を閉じ込めた注射器のピストンを押し引きして、体積 V と圧力 P の反比例（PV=一定）を確かめる実験。',
+        playable: true,
+        simType: 'slider_lab',
+        simConfig: {
+          guide: '温度一定のまま注射器の体積 V（mL）を半分（20mL → 10mL）にして、圧力 P が2倍になるか確かめよう！',
+          label: '注射器内の体積 V（mL）',
+          min: 10,
+          max: 40,
+          initial: 20,
+          unit: 'mL',
+          targetCheck: (v) => v <= 10,
+          describe: (v) => {
+            const p = (2000 / v).toFixed(0);
+            return {
+              bg: 'rgba(56,189,248,0.45)',
+              icon: '💉',
+              status: `圧力 P = ${p} hPa（PV = 20000 一定！体積を半分にすると圧力はちょうど2倍になる＝ボイルの法則）`
+            };
+          }
+        },
+        equipmentIds: ['syringe_gauge'],
+        youtubeQuery: '高校物理 ボイルの法則 注射器 実験',
+        points: [
+          'ボイル・シャルルの法則：PV / T ＝ 一定（温度 T は必ず絶対温度 [K] ＝ ℃ + 273 を使う！）',
+          'グラフで P - V は反比例の双曲線、P - 1/V は原点を通る直線になる！'
+        ],
+        steps: [
+          { icon: '💉', title: 'ステップ1：体積を変える', desc: 'ゆっくり押して温度が上がらないようにしながら体積を変えます。' },
+          { icon: '📊', title: 'ステップ2：PV = 一定', desc: '圧力計の値と体積の積が常に一定になることを確認します。' }
+        ]
+      }
+    ]
+  });
+
+  const physWave = phys.units.find((u) => u.id === 'phys_wave');
+  physWave.experiments.push(
+    {
+      id: 'phys_melde',
+      name: '弦の<ruby>定<rt>てい</rt>常<rt>じょう</rt>波<rt>は</rt></ruby>（メルデの実験）',
+      summary: 'おんさにつないだ糸に張力をかけて振動させ、腹の数（1個・2個・3個…）と張力の関係を調べる実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '糸を引くおもり（張力 S）を調整して、綺麗な定常波の腹（1〜3個）を作ってみよう！',
+        label: '糸の張力 S（N）',
+        min: 1,
+        max: 9,
+        initial: 4,
+        unit: 'N',
+        targetCheck: (v) => v === 1 || v === 9,
+        describe: (v) => {
+          if (v === 9) return { bg: 'rgba(74,222,128,0.5)', icon: '〰️', status: '【基本振動：腹 1個】張力が強く波の速さ v=√(S/ρ) が最大！' };
+          if (v === 4) return { bg: 'rgba(56,189,248,0.5)', icon: '〰️〰️', status: '【2倍振動：腹 2個】張力を 1/4（4N）にすると波長が半分になり腹が2個に！' };
+          if (v === 1) return { bg: 'rgba(250,204,21,0.5)', icon: '〰️〰️〰️', status: '【3倍振動：腹 3個】張力を 1/9（1N）にすると腹が3個になった！' };
+          return { bg: 'rgba(203,213,225,0.4)', icon: '〰️❌', status: '共振条件からズレて定常波が乱れている（1N・4N・9Nに合わせてみよう！）' };
+        }
+      },
+      equipmentIds: ['tuning_fork'],
+      youtubeQuery: '高校物理 メルデの実験 弦の定常波',
+      points: [
+        '弦を伝わる波の速さ：v = √(S / ρ)（張力 S の平方根に比例、線密度 ρ に反比例）！',
+        '固有振動数 fn = n / (2l) × √(S / ρ)'
+      ],
+      steps: [
+        { icon: '〰️', title: 'ステップ1：張力を変える', desc: 'おもりの数を変えて張力 S を調整します。' },
+        { icon: '✨', title: 'ステップ2：定常波の成立', desc: '両端が節となる美しい定常波が現れます。' }
+      ]
+    },
+    {
+      id: 'phys_beats',
+      name: 'うなりの観察（2つのおんさ）',
+      summary: '振動数がわずかに違う2つのおんさを同時に鳴らし、「ウォン、ウォン」と周期的に強弱するうなりを聴く実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: 'おんさBの振動数（f1=440Hz に対して）を変えて、1秒間のうなりの回数 f = |f1 - f2| を確かめよう！',
+        label: 'おんさBの振動数 f2（Hz）',
+        min: 435,
+        max: 446,
+        initial: 442,
+        unit: 'Hz',
+        targetCheck: (v) => v === 440,
+        describe: (v) => {
+          const beats = Math.abs(440 - v);
+          if (beats === 0) return { bg: 'rgba(74,222,128,0.5)', icon: '🔔✨', status: '【共鳴・うなり 0回！】f1 = f2 = 440Hz で完全に同じ音になった！（チューニング完了）' };
+          return { bg: 'rgba(250,204,21,0.45)', icon: '〰️🔊', status: `1秒間に ${beats} 回のうなり（|440 - ${v}| = ${beats} Hz）！周期は ${(1 / beats).toFixed(2)} 秒！` };
+        }
+      },
+      equipmentIds: ['tuning_fork'],
+      youtubeQuery: '高校物理 うなり おんさ 実験',
+      points: [
+        '1秒間のうなりの回数：f = |f1 - f2|',
+        'うなりを聴きながら楽器の調律（チューニング）を行うのはこの原理！'
+      ],
+      steps: [
+        { icon: '🔔', title: 'ステップ1：2つを同時に鳴らす', desc: 'わずかに振動数が違うと音が周期的に大きくなったり小さくなったりします。' },
+        { icon: '⚖️', title: 'ステップ2：振動数を一致させる', desc: 'うなりが消えたとき、2つの振動数は完全に等しくなります。' }
+      ]
+    },
+    {
+      id: 'phys_refraction',
+      name: '光の<ruby>屈<rt>くっ</rt>折<rt>せつ</rt></ruby>と<ruby>全<rt>ぜん</rt>反<rt>はん</rt>射<rt>しゃ</rt></ruby>',
+      summary: '半円形ガラスの中から空気中へ光を出したとき、入射角を大きくするとある角度で全反射する現象を調べる実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: 'ガラス（屈折率 n=1.5）から空気へ光を出す入射角 θ を上げて、「全反射（臨界角約42°）」を起こそう！',
+        label: 'ガラス内からの入射角 θ（度）',
+        min: 0,
+        max: 70,
+        initial: 20,
+        unit: '°',
+        targetCheck: (v) => v >= 42,
+        describe: (v) => {
+          if (v < 42) return { bg: 'rgba(186,230,253,0.45)', icon: '🔦↗️', status: '屈折光が空気中へ出ている！（一部は反射光）' };
+          if (v === 42) return { bg: 'rgba(250,204,21,0.5)', icon: '🔦➡️', status: '【臨界角！】屈折角がちょうど 90° になり境界面スレスレを進む！' };
+          return { bg: 'rgba(168,85,247,0.5)', icon: '🔦🪞', status: '【全反射発生！！】光は一切外へ出ず 100% 反射する！（光ファイバーの原理！）' };
+        }
+      },
+      equipmentIds: ['convex_lens'],
+      youtubeQuery: '高校物理 全反射 臨界角 半円形ガラス 実験',
+      points: [
+        '全反射は必ず「屈折率が大きい媒質（ガラス・水）→ 小さい媒質（空気）」へ進むときにしか起きない！',
+        '臨界角 θc の条件：n sinθc = 1 × sin90° → sinθc = 1 / n'
+      ],
+      steps: [
+        { icon: '🔦', title: 'ステップ1：入射角を増やす', desc: '空気側へ折れ曲がる屈折角がどんどん大きくなります。' },
+        { icon: '🪞', title: 'ステップ2：臨界角を超えて全反射', desc: '屈折角が90°を超えるとすべて境界面で反射します。' }
+      ]
+    }
+  );
+
+  const physEm = phys.units.find((u) => u.id === 'phys_em');
+  physEm.experiments.push(
+    {
+      id: 'phys_ohm_bulb',
+      name: '豆電球の<ruby>非<rt>ひ</rt></ruby>オーム<ruby>抵<rt>てい</rt>抗<rt>こう</rt></ruby>特性',
+      summary: '豆電球にかける電圧を上げていき、フィラメントの温度上昇により抵抗値が変化する（I-Vグラフが曲がる）実験。',
+      playable: true,
+      simType: 'slider_lab',
+      simConfig: {
+        guide: '電圧 V を上げて、電流 I の増え方（抵抗 R = V/I の変化）を確かめよう！',
+        label: '電圧 V（V）',
+        min: 0,
+        max: 6,
+        initial: 1,
+        unit: 'V',
+        targetCheck: (v) => v >= 5,
+        describe: (v) => {
+          if (v === 0) return { bg: 'rgba(30,41,59,0.5)', icon: '🌑', status: '電流 0 A（消灯）' };
+          const i = (Math.sqrt(v) * 0.15).toFixed(2);
+          const r = (v / i).toFixed(1);
+          return {
+            bg: v >= 4 ? 'rgba(250,204,21,0.55)' : 'rgba(251,191,36,0.35)',
+            icon: v >= 4 ? '💡✨' : '💡',
+            status: `電流 I ≈ ${i} A → 抵抗 R = ${r} Ω（温度が上がり金属の抵抗が大きくなっている！）`
+          };
+        }
+      },
+      equipmentIds: ['power_supply', 'galvanometer'],
+      youtubeQuery: '高校物理 非オーム抵抗 豆電球 I-V特性',
+      points: [
+        '金属は温度が上昇すると原子の熱振動が激しくなり、自由電子が邪魔されて「抵抗が大きくなる」！',
+        'そのため I-V グラフは直線にならず、上向きに寝てくる曲線になる。'
+      ],
+      steps: [
+        { icon: '💡', title: 'ステップ1：電圧を上げる', desc: '電圧を上げるとフィラメントが赤熱し温度が急上昇します。' },
+        { icon: '📈', title: 'ステップ2：抵抗の増大', desc: 'I-V曲線の傾きが小さくなり、抵抗値が大きくなったとわかります。' }
+      ]
+    },
+    {
+      id: 'phys_fleming',
+      name: '電流が<ruby>磁<rt>じ</rt>場<rt>ば</rt></ruby>から受ける力（フレミングの左手）',
+      summary: 'U字磁石の間に吊るしたアルミ棒（ブランコ）に電流を流し、力の向きを確かめる実験。',
+      playable: true,
+      simType: 'step_lab',
+      simConfig: {
+        guide: '電流の向きや磁石の極（N・S）を逆にして、ブランコの動く向きを確かめよう！',
+        stages: [
+          { label: '⚡ 電流を奥→手前、磁場を下→上にセット', visual: '➡️🧲', bg: 'rgba(56,189,248,0.45)', text: 'フレミング左手の法則（中指：電流、人差し指：磁場、親指：力）により、ブランコが右へ大きく振れた！' },
+          { label: '🔄 電流の向きだけを逆にする', visual: '⬅️🧲', bg: 'rgba(250,204,21,0.45)', text: '力の向きも逆になり、今度は左へ振れた！（F = I B l）' }
+        ]
+      },
+      equipmentIds: ['power_supply'],
+      youtubeQuery: '高校物理 フレミング左手の法則 ブランコ 実験',
+      points: [
+        '力の大きさ：F = I B l（磁場と電流が垂直なとき最大、平行なときは 0）！',
+        '電磁誘導（発電）の「向き」は右手、電流が受ける「力」は左手（FBI）！'
+      ],
+      steps: [
+        { icon: '🖐️', title: 'ステップ1：左手で向きを確認', desc: '中指(電)・人差し指(磁)・親指(力)を互いに垂直にします。' },
+        { icon: '🔄', title: 'ステップ2：電流・磁場の反転', desc: 'どちらか一方を逆にすると、力の向きも逆転します。' }
+      ]
+    }
+  );
+
+  const physAtom = phys.units.find((u) => u.id === 'phys_atom');
+  physAtom.experiments.push({
+    id: 'phys_cloud_chamber',
+    name: '<ruby>霧<rt>きり</rt>箱<rt>ばこ</rt></ruby>による<ruby>放<rt>ほう</rt>射<rt>しゃ</rt>線<rt>せん</rt></ruby>の飛跡観察',
+    summary: 'エタノール過飽和蒸気の中を通過する放射線の通り道に白い霧の筋（飛行機雲のような飛跡）を見る実験。',
+    playable: true,
+    simType: 'step_lab',
+    simConfig: {
+      guide: 'ドライアイスで冷やした霧箱の中に線源を入れて、α線・β線・γ線の飛跡の違いを見比べよう！',
+      stages: [
+        { label: '🔴 α線（ヘリウム原子核 He^2+）の飛跡を見る', visual: '➖✨', bg: 'rgba(239,68,68,0.4)', text: '太くてまっすぐで短い飛跡！電離作用が非常に強く、空気中で数cm進むとすぐ止まる！' },
+        { label: '🔵 β線（高速の電子 e-）の飛跡を見る', visual: '〰️✨', bg: 'rgba(56,189,248,0.4)', text: '細くて長く、空気分子に弾かれてジグザグに曲がった飛跡！' },
+        { label: '🟣 γ線（電磁波）の特徴を見る', visual: '⚡', bg: 'rgba(168,85,247,0.4)', text: '電離作用が弱く直接の飛跡はほぼ見えないが、透過力が極めて強い！' }
+      ]
+    },
+    equipmentIds: ['cloud_chamber'],
+    youtubeQuery: '高校物理 霧箱 放射線 飛跡 実験',
+    points: [
+      '電離作用の強さ：α線 ＞ β線 ＞ γ線 ／ 透過力の強さ：γ線 ＞ β線 ＞ α線（ちょうど逆！）',
+      'α線は紙1枚で止まり、β線は薄い金属板、γ線は厚い鉛やコンクリートが必要。'
+    ],
+    steps: [
+      { icon: '🧊', title: 'ステップ1：過飽和状態を作る', desc: '箱の底をドライアイスで冷やし、エタノール蒸気を過飽和にします。' },
+      { icon: '✨', title: 'ステップ2：飛跡の比較', desc: '太く短いα線と、細く曲がったβ線の飛跡を観察します。' }
+    ]
+  });
+
+  EQUIPMENT_MASTER.push(
+    { id: 'volumetric_flask', name: 'メスフラスコ', ruby: 'メスフラスコ', icon: '🏺', short: '正確な体積・濃度の溶液を調製する首の長いフラスコ', detail: '中に純水が残っていてもOKですが、正確な体積が変わるため加熱乾燥や共洗いは厳禁です。' },
+    { id: 'separatory_funnel', name: '分液漏斗', ruby: '<ruby>分<rt>ぶん</rt>液<rt>えき</rt><rt>漏<rt>ろう</rt>斗<rt>と</rt></ruby>', icon: '🧪', short: '混ざらない2層の液体をコックで分離する器具', detail: '振るときはガス圧を抜くため、必ずコックを上に向けてガス抜きをします。' },
+    { id: 'calorimeter', name: '簡易熱量計', ruby: '<ruby>簡<rt>かん</rt>易<rt>い</rt><rt>熱<rt>ねつ</rt>量<rt>りょう</rt>計<rt>けい</rt></ruby>', icon: '🥤', short: '発泡スチロール等で熱の出入りを防ぎ温度を測る容器', detail: '中和熱や比熱の測定で、熱が外へ逃げないように断熱して使います。' },
+    { id: 'electrophoresis_box', name: '電気泳動装置', ruby: '<ruby>電<rt>でん</rt>気<rt>き</rt><rt>泳<rt>えい</rt>動<rt>どう</rt></ruby>装置', icon: '🧫', short: 'ゲルに電圧をかけてDNAやタンパク質を分離する装置', detail: '負に帯電したDNAを＋極側へ移動させ、分子量の違いによって分離します。' },
+    { id: 'syringe_gauge', name: '注射器と圧力計', ruby: '<ruby>注<rt>ちゅう</rt>射<rt>しゃ</rt>器<rt>き</rt></ruby>と圧力計', icon: '💉', short: '閉じ込めた気体の体積と圧力を同時に測るセット', detail: 'ピストンをゆっくり動かすことで、温度変化を防ぎながらボイルの法則を確かめられます。' },
+    { id: 'cloud_chamber', name: '霧箱', ruby: '<ruby>霧<rt>きり</rt>箱<rt>ばこ</rt></ruby>', icon: '🧊', short: '過飽和蒸気で放射線の飛跡を可視化する装置', detail: '放射線が生み出したイオンを核にしてアルコール蒸気が凝結し、白い筋になって見えます。' }
+  );
+
+  QUIZ_MASTER.push(
+    { id: 'q_sep', expId: 'chem_separation', question: '蒸留で使うリービッヒ冷却器の冷却水は、どちらから入れてどちらから出す？', options: ['上から入れて下から出す', '下から入れて上から出す', 'どちらでも同じ'], answer: 1, explanation: '下から入れて上から出すことで、冷却管の中を気泡なく水で満たすことができます！' },
+    { id: 'q_mol', expId: 'chem_molarity', question: 'メスフラスコを使って溶液を調製するとき、絶対にしてはいけない操作は？', options: ['使用前に純水ですすぐ', '標線近くで駒込ピペットを使う', '加熱乾燥させる（または共洗いする）'], answer: 2, explanation: '加熱するとガラスが膨張・変形して正確な体積が狂うため加熱乾燥はNGです！' },
+    { id: 'q_redox', expId: 'chem_redox_titration', question: '過マンガン酸カリウムによる酸化還元滴定で、酸性化に「塩酸」を使えない理由は？', options: ['Cl- が酸化されて有毒な塩素 Cl2 が発生するため', '色が変わらなくなるため', '沈殿ができてしまうため'], answer: 0, explanation: 'KMnO4 の強い酸化力で Cl- まで酸化されてしまい正確な滴定ができなくなります。必ず希硫酸を使います！' },
+    { id: 'q_hneut', expId: 'chem_heat_neutral', question: '希塩酸と水酸化ナトリウム水溶液の中和熱（水1mol生成あたり）はおよそ何kJ？', options: ['約 12 kJ', '約 56.5 kJ', '約 286 kJ'], answer: 1, explanation: '強酸＋強塩基の中和熱は、種類によらず水 1mol あたり約 56.5 kJ です！' },
+    { id: 'q_lead', expId: 'chem_lead_battery', question: '鉛蓄電池が「放電」すると、負極（Pb）と正極（PbO2）の質量はどう変化する？', options: ['どちらも減少する', 'どちらも増加する（PbSO4になる）', '負極だけ減少し正極は増加する'], answer: 1, explanation: '放電すると両極ともに SO4^2- と結びついて PbSO4 になるため、両方とも質量が増加します！' },
+    { id: 'q_nacl', expId: 'chem_nacl_elec', question: 'NaCl水溶液を陽イオン交換膜法で電気分解したとき、高純度の NaOH が生成するのはどっちの極側？', options: ['陽極（＋）側', '陰極（－）側', '交換膜の真ん中'], answer: 1, explanation: '陰極でH2が発生してOH-が残り、そこへ陽極側からNa+が移動してくるため陰極室にNaOHができます！' },
+    { id: 'q_rate', expId: 'chem_reaction_rate', question: '触媒を加えたとき、反応速度が速くなる正しい理由は？', options: ['反応熱 ΔH が大きくなるから', '活性化エネルギーが小さくなるから', '生成物のエネルギーが上がるから'], answer: 1, explanation: '触媒は別の反応経路を通ることで活性化エネルギーの壁を低くします（反応熱は不変）！' },
+    { id: 'q_sys', expId: 'chem_systematic', question: '系統分離で、H2Sを通じたあとに「煮沸してから濃硝酸を加える」理由は？', options: ['H2Sを追い出し、Fe2+をFe3+に酸化するため', 'CuSを溶かすため', 'pHを14にするため'], answer: 0, explanation: '次のNH3水で確実に Fe(OH)3 の赤褐色沈殿として落とすため、H2S除去とFe2+→Fe3+の酸化を行います！' },
+    { id: 'q_iron', expId: 'chem_iron_detect', question: 'Fe3+ 水溶液にチオシアン酸カリウム（KSCN）水溶液を加えたときの変化は？', options: ['濃青色沈殿ができる', '血赤色の溶液になる', '白色沈殿ができる'], answer: 1, explanation: 'Fe3+ の検出に使う KSCN は沈殿ではなく「血赤色の溶液」になります！' },
+    { id: 'q_elem', expId: 'chem_elemental', question: '有機物の元素分析で、燃焼ガスを通す2つの吸収管の正しい順番は？', options: ['①ソーダ石灰管 → ②塩化カルシウム管', '①塩化カルシウム管 → ②ソーダ石灰管', '順番はどちらでもよい'], answer: 1, explanation: 'ソーダ石灰はCO2だけでなくH2Oも吸ってしまうため、必ず先に塩化カルシウム管でH2Oを吸収します！' },
+    { id: 'q_alcox', expId: 'chem_alcohol_ox', question: '次のうち、二クロム酸カリウムなどで穏やかに酸化すると「ケトン」を生じるのはどれ？', options: ['第1級アルコール', '第2級アルコール', '第3級アルコール'], answer: 1, explanation: '第1級はアルデヒド→カルボン酸、第2級はケトン、第3級は酸化されません！' },
+    { id: 'q_phen', expId: 'chem_phenol', question: 'フェノール性ヒドロキシ基（-OH）を検出するために使う、青〜赤紫色に呈色する試薬は？', options: ['塩化鉄(III)（FeCl3）水溶液', 'ヨウ素液', 'フェーリング液'], answer: 0, explanation: 'FeCl3 水溶液を加えると青紫色〜赤紫色に呈色します！' },
+    { id: 'q_arom', expId: 'chem_aromatic_sep', question: '安息香酸・フェノール・アニリン・ニトロベンゼンの分離で、安息香酸だけを水層に移す試薬は？', options: ['希塩酸（HCl）', '炭酸水素ナトリウム（NaHCO3）水溶液', '水酸化ナトリウム（NaOH）水溶液'], answer: 1, explanation: 'NaHCO3 はカルボン酸（安息香酸）とは反応しますが、弱酸のフェノールとは反応しないため完璧に分けられます！' },
+    { id: 'q_sugar', expId: 'chem_sugar', question: '次の二糖類のうち、フェーリング反応を示さない（還元性がない）ものはどれ？', options: ['マルトース（麦芽糖）', 'ラクトース（乳糖）', 'スクロース（ショ糖）'], answer: 2, explanation: 'スクロースは還元基どうしが結合しているため、二糖類で唯一還元性を持ちません！' },
+    { id: 'q_soap', expId: 'chem_soap', question: 'セッケンの合成（けん化）において、反応液に「エタノール」を加える一番の目的は？', options: ['良い香りをつけるため', '水酸化ナトリウムと油脂を均一に混ぜるため', '塩析を起こすため'], answer: 1, explanation: '油と水が混ざりにくいので、両方に馴染むエタノールを加えて反応を速めます！' },
+    { id: 'q_micro', expId: 'bio_micrometer', question: '顕微鏡の対物レンズを10倍から40倍に変えたとき、変化するのはどれ？', options: ['対物ミクロメーターの1目盛りの長さ（10μm）', '接眼ミクロメーターの1目盛りが表す長さ', '細胞そのものの実際の大きさ'], answer: 1, explanation: '対物1目盛りは常に10μmですが、接眼1目盛りが示す長さは倍率で変わるため必ず計算し直します！' },
+    { id: 'q_stream', expId: 'bio_streaming', question: 'オオカナダモの細胞内で、葉緑体が一定の向きに動いて見える現象を何という？', options: ['原形質分離', '原形質流動', '能動輸送'], answer: 1, explanation: '細胞骨格（アクチンフィラメント）とミオシンの働きで細胞質が流れる「原形質流動」です！' },
+    { id: 'q_amy', expId: 'bio_amylase', question: 'だ液（アミラーゼ）でデンプンを分解した液に「ベネジクト液」を加えて結果をみる際に必須の操作は？', options: ['氷水で冷やす', '加熱（軽く煮沸）する', '暗所に一晩置く'], answer: 1, explanation: 'ベネジクト液は加熱しないと赤褐色沈殿（Cu2O）を生じません！' },
+    { id: 'q_saliv', expId: 'bio_salivary', question: 'ユスリカ幼虫のだ腺染色体に見られる、膨らんでほどけた部分「パフ」では何が盛んに行われている？', options: ['DNAの複製', 'mRNAの転写', '細胞分裂'], answer: 1, explanation: 'パフでは特定の遺伝子が活性化し、mRNAの転写が盛んに行われています！' },
+    { id: 'q_elec_bio', expId: 'bio_electrophoresis', question: 'DNAの電気泳動を行うと、DNA断片はどちらの電極側へ移動する？', options: ['＋極側（短い断片ほど遠くへ移動）', '－極側（長い断片ほど遠くへ移動）', '移動しない'], answer: 0, explanation: 'DNAは負（－）の電荷を持つため＋極へ引かれ、短い断片ほどゲルの網目を速く通り抜けます！' },
+    { id: 'q_gfp', expId: 'bio_gfp', question: '大腸菌の形質転換実験で、培地に「アンピシリン（抗生物質）」を入れておく理由は？', options: ['菌を早く増やすため', 'プラスミドを取り込んだ大腸菌だけを選別するため', '緑色に光らせるため'], answer: 1, explanation: 'アンピシリン耐性遺伝子を持つプラスミドが入った菌だけが生き残るようにするためです！' },
+    { id: 'q_urchin', expId: 'bio_seaurchin', question: 'ウニの受精直後に卵の表面に「受精膜」が形成される最大の意義は？', options: ['栄養を蓄えるため', '複数の精子が侵入する（多精）のを防ぐため', '卵割を止めるため'], answer: 1, explanation: '1匹目の精子が侵入したあと他の精子が入れないようにする「多精拒否」の働きです！' },
+    { id: 'q_blood', expId: 'bio_blood', question: '血液凝固反応において、血漿中のフィブリノーゲンが変化してできる網状の物質は？', options: ['トロンビン', 'フィブリン', 'ヘモグロビン'], answer: 1, explanation: '酵素トロンビンの働きでフィブリノーゲンが繊維状の「フィブリン」になり血球を絡め取ります！' },
+    { id: 'q_blind', expId: 'bio_blindspot', question: '眼球の網膜にある「盲斑（もうはん）」に像が結ばれると見えない理由は？', options: ['レンズが曇っているから', '視神経が束になって出ていく部分で視細胞がないから', '錐体細胞が多すぎるから'], answer: 1, explanation: '視神経乳頭とも呼ばれ、錐体・桿体どちらの視細胞も存在しないため光を感じません！' },
+    { id: 'q_quad', expId: 'bio_quadrat', question: 'コドラート法による植生調査で、その群集の中で最も優占度が高い種を何という？', options: ['先駆種', '優占種', '固有種'], answer: 1, explanation: '被度や頻度から算出される優占度が最も高い種を「優占種」と呼びます！' },
+    { id: 'q_monk', expId: 'phys_monkey', question: 'モンキーハンティングで、弾の初速を「半分」にしたら（地面に落ちる前なら）どうなる？', options: ['サルの上を通り過ぎる', 'それでも必ず命中する（当たる高さは低くなる）', 'サルの下を通り過ぎる'], answer: 1, explanation: '同じ時刻における重力落下分 1/2 gt² が弾もサルも同じなので、当たる位置が低くなるだけで必ず命中します！' },
+    { id: 'q_fric', expId: 'phys_friction', question: '傾きを上げていく板の上の物体が、角度 θ0 でちょうど滑り出した。静止摩擦係数 μ は？', options: ['sinθ0', 'cosθ0', 'tanθ0'], answer: 2, explanation: 'mg sinθ0 = μ mg cosθ0 より、μ = tanθ0 となります！' },
+    { id: 'q_spri', expId: 'phys_spring', question: 'ばね振り子を地球上から月面（重力が1/6）へ持っていったとき、振動周期 T はどうなる？', options: ['√6 倍になる', '1/√6 倍になる', '変わらない'], answer: 2, explanation: 'ばね振り子の周期 T = 2π√(m/k) には重力加速度 g が含まれないため変化しません！' },
+    { id: 'q_hcap', expId: 'phys_heat_cap', question: '水熱量計で金属の比熱を測定するとき、金属が失った熱量と等しくなるのは？', options: ['水が得た熱量だけ', '水が得た熱量 ＋ 熱量計容器が得た熱量', '金属の熱容量だけ'], answer: 1, explanation: '水だけでなく熱量計の容器自身も温まるため、容器の熱容量（CΔT）も必ず足します！' },
+    { id: 'q_boyle', expId: 'phys_boyle', question: '温度一定のとき、注射器に閉じ込めた気体の体積を 1/3 にすると圧力は何倍になる？', options: ['1/3 倍', '3 倍', '9 倍'], answer: 1, explanation: 'ボイルの法則 PV = 一定 より、体積が 1/3 なら圧力は 3 倍になります！' },
+    { id: 'q_melde', expId: 'phys_melde', question: 'メルデの実験で、おんさの振動数を変えずに弦の張力だけを「4倍」にすると、弦を伝わる波の速さは？', options: ['2 倍になる', '4 倍になる', '1/2 倍になる'], answer: 0, explanation: '速さ v = √(S/ρ) なので、張力 S を 4倍にすると速さは √4 = 2倍になります！' },
+    { id: 'q_beats', expId: 'phys_beats', question: '440 Hz のおんさと 443 Hz のおんさを同時に鳴らすと、1秒間に何回のうなりが聞こえる？', options: ['1 回', '3 回', '6 回'], answer: 1, explanation: 'うなり回数 f = |f1 - f2| = |440 - 443| = 3 回/秒 です！' },
+    { id: 'q_refr', expId: 'phys_refraction', question: '光が「空気中からガラス」へ斜めに入射するとき、全反射は起きる？', options: ['入射角が大きいと起きる', '絶対に起きない', '赤い光だけ起きる'], answer: 1, explanation: '全反射は必ず「屈折率が大きい媒質 → 小さい媒質」へ進むときにしか起きません！' },
+    { id: 'q_bulb', expId: 'phys_ohm_bulb', question: '豆電球にかける電圧を上げてフィラメントが高温になると、電気抵抗値はどう変化する？', options: ['小さくなる', '大きくなる', 'ずっと一定'], answer: 1, explanation: '金属フィラメントは高温になると熱振動が激しくなり、抵抗値が大きくなります！' },
+    { id: 'q_flem', expId: 'phys_fleming', question: '電流が磁場から受ける力の向きを調べる「フレミングの左手の法則」で、親指が表すのは？', options: ['電流の向き', '磁場の向き', '力の向き'], answer: 2, explanation: '親指＝力（F）、人差し指＝磁場（B）、中指＝電流（I）です（電・磁・力）！' },
+    { id: 'q_cloud', expId: 'phys_cloud_chamber', question: '霧箱の中で、太くてまっすぐ・短い飛跡を残す（電離作用が最も強い）放射線は？', options: ['α線', 'β線', 'γ線'], answer: 0, explanation: 'α線（He^2+）は質量と電荷が大きいため電離作用が最強で、太く短い飛跡を残します！' }
+  );
+})();
+// ラボ・ロジカ（LAB LOGICA）全実験・60fps Canvasアニメーションエンジン
+
+const SimCanvas = (function () {
+  let rafId = null;
+
+  function stop() {
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  function start(canvasId, drawFn) {
+    stop();
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const t0 = performance.now();
+
+    function loop(now) {
+      if (!document.getElementById(canvasId)) {
+        rafId = null;
+        return;
+      }
+      const t = (now - t0) / 1000;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawFn(ctx, canvas.width, canvas.height, t);
+      rafId = requestAnimationFrame(loop);
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function drawSliderScene(expId, ctx, W, H, t, val) {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, W, H);
+
+    if (expId === 'phys_lens') {
+      const cx = W / 2;
+      const cy = H / 2 + 10;
+      const fPx = 20 * 3.2;
+      const aPx = val * 3.2;
+      const objX = cx - aPx;
+      const objH = 42;
+
+      ctx.strokeStyle = 'rgba(148,163,184,0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(10, cy);
+      ctx.lineTo(W - 10, cy);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 10, 72, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      [cx - fPx, cx + fPx, cx - 2 * fPx, cx + 2 * fPx].forEach((fx, idx) => {
+        ctx.fillStyle = idx < 2 ? '#fbbf24' : '#94a3b8';
+        ctx.beginPath();
+        ctx.arc(fx, cy, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '11px sans-serif';
+        ctx.fillText(idx < 2 ? 'F' : '2F', fx - 6, cy + 16);
+      });
+
+      ctx.strokeStyle = '#f87171';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(objX, cy);
+      ctx.lineTo(objX, cy - objH);
+      ctx.stroke();
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(objX, cy - objH - 5, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (Math.abs(val - 20) > 0.5) {
+        const bCm = (val * 20) / (val - 20);
+        const bPx = bCm * 3.2;
+        const imgX = cx + bPx;
+        const mag = -bCm / val;
+        const imgTopY = cy - objH * mag;
+
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(objX, cy - objH);
+        ctx.lineTo(cx, cy - objH);
+        ctx.lineTo(imgX, imgTopY);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.85)';
+        ctx.beginPath();
+        ctx.moveTo(objX, cy - objH);
+        ctx.lineTo(imgX, imgTopY);
+        ctx.stroke();
+
+        ctx.save();
+        if (bCm < 0) ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = bCm < 0 ? '#f472b6' : '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(imgX, cy);
+        ctx.lineTo(imgX, imgTopY);
+        ctx.stroke();
+        ctx.restore();
+      }
+      return;
+    }
+
+    if (expId === 'phys_young') {
+      const hue = Math.max(0, Math.min(270, ((700 - val) / 300) * 260));
+      const color = `hsl(${hue}, 90%, 60%)`;
+      const spacing = (val / 550) * 26;
+
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(90, 10, 8, 55);
+      ctx.fillRect(90, 85, 8, 30);
+      ctx.fillRect(90, 135, 8, 55);
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      for (let r = (t * 45) % 24; r < 180; r += 24) {
+        ctx.beginPath();
+        ctx.arc(94, 75, r, -Math.PI / 2.5, Math.PI / 2.5);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(94, 125, r, -Math.PI / 2.5, Math.PI / 2.5);
+        ctx.stroke();
+      }
+
+      for (let y = 10; y < H - 10; y += 2) {
+        const intensity = Math.pow(Math.cos(((y - H / 2) / spacing) * Math.PI), 2);
+        ctx.fillStyle = `hsla(${hue}, 95%, 55%, ${intensity.toFixed(2)})`;
+        ctx.fillRect(W - 75, y, 50, 2);
+      }
+      ctx.strokeStyle = '#94a3b8';
+      ctx.strokeRect(W - 75, 10, 50, H - 20);
+      return;
+    }
+
+    if (expId === 'phys_refraction') {
+      const cx = W / 2;
+      const cy = H / 2 + 10;
+      const rad = (val * Math.PI) / 180;
+
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.28)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 78, 0, Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(cx, 15);
+      ctx.lineTo(cx, H - 15);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const ix = cx - Math.sin(rad) * 95;
+      const iy = cy + Math.cos(rad) * 95;
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(ix, iy);
+      ctx.lineTo(cx, cy);
+      ctx.stroke();
+
+      const rx = cx + Math.sin(rad) * 95;
+      const ry = cy + Math.cos(rad) * 95;
+      ctx.strokeStyle = val >= 42 ? '#ef4444' : 'rgba(239,68,68,0.4)';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(rx, ry);
+      ctx.stroke();
+
+      const sinR = 1.5 * Math.sin(rad);
+      if (sinR <= 1) {
+        const rRad = Math.asin(sinR);
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.sin(rRad) * 95, cy - Math.cos(rRad) * 95);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if (expId === 'phys_pendulum') {
+      const cx = W / 2;
+      const topY = 18;
+      const lenPx = 45 + val * 55;
+      const T = 2 * Math.PI * Math.sqrt(val / 9.8);
+      const angle = 0.45 * Math.sin((2 * Math.PI * t) / T);
+      const bx = cx + Math.sin(angle) * lenPx;
+      const by = topY + Math.cos(angle) * lenPx;
+
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - 40, topY);
+      ctx.lineTo(cx + 40, topY);
+      ctx.moveTo(cx, topY);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(bx, by, 14, 0, Math.PI * 2);
+      ctx.fill();
+      return;
+    }
+
+    if (expId === 'phys_spring') {
+      const cx = W / 2;
+      const topY = 15;
+      const T = 2 * Math.PI * Math.sqrt(val / 10);
+      const disp = 28 * Math.sin((2 * Math.PI * t) / T);
+      const endY = 95 + val * 25 + disp;
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, topY);
+      const coils = 10;
+      for (let i = 1; i <= coils; i++) {
+        const y = topY + ((endY - topY) * i) / coils;
+        const x = cx + (i % 2 === 0 ? -12 : 12);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(cx, endY);
+      ctx.stroke();
+
+      const size = 18 + val * 14;
+      ctx.fillStyle = '#34d399';
+      ctx.fillRect(cx - size / 2, endY, size, size);
+      return;
+    }
+
+    if (expId === 'phys_melde') {
+      const n = val === 9 ? 1 : val === 4 ? 2 : val === 1 ? 3 : 2.3;
+      const cy = H / 2;
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let x = 30; x <= W - 30; x += 3) {
+        const norm = (x - 30) / (W - 60);
+        const y = cy + Math.sin(norm * Math.PI * n) * 45 * Math.sin(t * 14);
+        if (x === 30) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      return;
+    }
+
+    if (expId === 'phys_beats') {
+      const diff = Math.abs(440 - val);
+      const cy = H / 2;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 20; x <= W - 20; x += 2) {
+        const phase = (x - 20) * 0.12 - t * 6;
+        const env = Math.cos(((x - 20) * 0.015 * diff) - t * diff * 1.5);
+        const y = cy + Math.sin(phase) * env * 52;
+        if (x === 20) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      return;
+    }
+
+    if (expId === 'phys_cart') {
+      const rad = (val * Math.PI) / 180;
+      const cycle = (t * 0.7) % 1;
+      const dist = cycle * cycle * 190;
+
+      ctx.save();
+      ctx.translate(60, 45);
+      ctx.rotate(rad);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, 30);
+      ctx.lineTo(240, 30);
+      ctx.stroke();
+
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(dist, 4, 36, 20);
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(dist + 8, 26, 5, 0, Math.PI * 2);
+      ctx.arc(dist + 28, 26, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      return;
+    }
+
+    if (expId === 'phys_friction') {
+      const rad = (val * Math.PI) / 180;
+      const slide = val >= 31 ? ((t * 90) % 120) : 0;
+      ctx.save();
+      ctx.translate(W / 2 - 80, H - 35);
+      ctx.rotate(-rad);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(0, 0, 190, 10);
+      ctx.fillStyle = val >= 31 ? '#ef4444' : '#38bdf8';
+      ctx.fillRect(110 - slide, -26, 32, 26);
+      ctx.restore();
+      return;
+    }
+
+    if (expId === 'phys_boyle') {
+      const len = 45 + val * 4.5;
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(60, 55, 220, 80);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(60 + len, 57, 14, 76);
+
+      ctx.fillStyle = '#38bdf8';
+      for (let i = 0; i < 12; i++) {
+        const px = 68 + ((Math.abs(Math.sin(t * 2.5 + i * 1.7))) * (len - 14));
+        const py = 66 + ((Math.abs(Math.cos(t * 3.1 + i * 2.3))) * 58);
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if (expId === 'phys_photoelec') {
+      const hue = val >= 9 ? 280 : val >= 7 ? 130 : 0;
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(70, 35, 16, 120);
+
+      for (let i = 0; i < 3; i++) {
+        const p = (t * 1.4 + i * 0.33) % 1;
+        const x = 180 - p * 95;
+        const y = 60 + i * 35;
+        ctx.strokeStyle = `hsl(${hue}, 95%, 60%)`;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      if (val >= 8) {
+        ctx.fillStyle = '#38bdf8';
+        for (let i = 0; i < 4; i++) {
+          const p = (t * 1.8 + i * 0.25) % 1;
+          const x = 88 + p * 180;
+          const y = 55 + i * 25 + Math.sin(t * 5 + i) * 5;
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      return;
+    }
+
+    if (expId === 'bio_streaming') {
+      const speed = val < 12 ? 0.4 : val <= 32 ? 2.2 : 0.7;
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(65, 30, W - 130, H - 60);
+
+      ctx.fillStyle = 'rgba(186,230,253,0.2)';
+      ctx.fillRect(100, 58, W - 200, H - 116);
+
+      ctx.fillStyle = '#4ade80';
+      for (let i = 0; i < 8; i++) {
+        const ang = t * speed + (i * Math.PI * 2) / 8;
+        const cx = W / 2 + Math.cos(ang) * 95;
+        const cy = H / 2 + Math.sin(ang) * 48;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 10, 6, ang, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if (expId === 'bio_plasmolysis') {
+      const shrink = Math.max(0, (val - 5) * 2.2);
+      ctx.strokeStyle = '#16a34a';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(85, 35, W - 170, H - 70);
+
+      ctx.fillStyle = 'rgba(74, 222, 128, 0.45)';
+      ctx.strokeStyle = '#86efac';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(90 + shrink, 40 + shrink * 0.7, W - 180 - shrink * 2, H - 80 - shrink * 1.4, 24);
+      ctx.fill();
+      ctx.stroke();
+      return;
+    }
+
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.fillRect(W / 2 - 55, 55, 110, 105);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W / 2 - 58, 35, 116, 128);
+
+    const bubbleCount = Math.min(12, Math.max(2, Math.floor(val / 8)));
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    for (let i = 0; i < bubbleCount; i++) {
+      const bx = W / 2 - 40 + ((i * 23) % 80);
+      const by = 150 - ((t * (45 + val * 0.5) + i * 19) % 90);
+      ctx.beginPath();
+      ctx.arc(bx, by, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawStepScene(expId, ctx, W, H, t, activeIdx, currStage) {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, W, H);
+
+    if (expId === 'phys_monkey') {
+      const cycle = (t * 0.55) % 1;
+      const sx = 40;
+      const sy = H - 30;
+      const mx = W - 65;
+      const myStart = 35;
+
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(148,163,184,0.45)';
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(mx, myStart);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const bx = sx + (mx - sx) * cycle;
+      const straightY = sy + (myStart - sy) * cycle;
+      const drop = cycle * cycle * 95;
+      const by = straightY + drop;
+      const my = myStart + drop;
+
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(bx, by, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = '24px sans-serif';
+      ctx.fillText('🐒', mx - 12, my + 8);
+      if (cycle > 0.92) {
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText('💥 命中！', mx - 42, my - 14);
+      }
+      return;
+    }
+
+    if (expId === 'phys_cloud_chamber') {
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(20, 20, W - 40, H - 40);
+      const showAlpha = activeIdx === 0 || activeIdx < 0;
+      const showBeta = activeIdx === 1;
+
+      for (let i = 0; i < 4; i++) {
+        const prog = (t * 1.1 + i * 0.25) % 1;
+        ctx.strokeStyle = `rgba(255,255,255,${(1 - prog).toFixed(2)})`;
+        if (showAlpha) {
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(45, H / 2 + (i - 1.5) * 18);
+          ctx.lineTo(45 + prog * 90, H / 2 + (i - 1.5) * 24);
+          ctx.stroke();
+        } else if (showBeta) {
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(45, 50 + i * 25);
+          ctx.quadraticCurveTo(140, 20 + i * 40, 45 + prog * 230, 70 + i * 20);
+          ctx.stroke();
+        }
+      }
+      return;
+    }
+
+    if (expId === 'bio_chromato') {
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(W / 2 - 35, 20, 70, H - 40);
+      const prog = activeIdx >= 2 ? 1 : activeIdx === 1 ? (t * 0.4) % 1 : 0.05;
+      const bands = [
+        { c: '#fb923c', dist: 120 },
+        { c: '#facc15', dist: 95 },
+        { c: '#10b981', dist: 65 },
+        { c: '#84cc16', dist: 42 }
+      ];
+      bands.forEach((b) => {
+        ctx.fillStyle = b.c;
+        ctx.fillRect(W / 2 - 28, H - 38 - b.dist * prog, 56, 10);
+      });
+      return;
+    }
+
+    if (expId === 'bio_electrophoresis') {
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(35, 25, W - 70, H - 50);
+      const prog = activeIdx >= 1 ? Math.min(1, (t * 0.35) % 1.2) : 0;
+      const speeds = [190, 130, 80];
+      speeds.forEach((sp, i) => {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(60 + sp * prog, 50 + i * 38, 12, 22);
+      });
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('－', 16, H / 2);
+      ctx.fillText('＋', W - 28, H / 2);
+      return;
+    }
+
+    const liqColor = currStage ? currStage.bg : 'rgba(56, 189, 248, 0.35)';
+    ctx.fillStyle = liqColor;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 56, 82);
+    for (let x = W / 2 - 56; x <= W / 2 + 56; x += 4) {
+      const wy = 82 + Math.sin(x * 0.08 + t * 4) * 3;
+      ctx.lineTo(x, wy);
+    }
+    ctx.lineTo(W / 2 + 56, 162);
+    ctx.lineTo(W / 2 - 56, 162);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W / 2 - 58, 36, 116, 128);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    for (let i = 0; i < 6; i++) {
+      const bx = W / 2 - 38 + i * 15;
+      const by = 152 - ((t * 48 + i * 17) % 66);
+      ctx.beginPath();
+      ctx.arc(bx, by, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.font = '32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(currStage ? currStage.visual : '🧪', W / 2, 128);
+    ctx.textAlign = 'left';
+  }
+
+  return { start, stop, drawSliderScene, drawStepScene };
+})();
+// ラボ・ロジカ（LAB LOGICA）アプリケーション本体
+
+const STORAGE_KEY = 'lab_logica_state_v1';
+
+const defaultState = {
+  completedExps: [],
+  quizCleared: [],
+  settings: {
+    sound: true,
+    ruby: true,
+    fontSize: 'normal',
+    guide: true,
+    theme: 'light'
+  }
+};
+
+let appState = loadState();
+let currentSubject = null;
+let currentUnit = null;
+let currentExp = null;
+let pvRafId = null;
+let pvPlaying = false;
+let pvElapsed = 0;
+let pvLastTimestamp = 0;
+const PV_DURATION = 16;
+let audioCtx = null;
+
+function goToBiologica() {
+  const isLocal = window.location.protocol === 'file:';
+  window.location.href = isLocal
+    ? '../バイオ・ロジカ/大事/index.html'
+    : 'https://bio-labo.github.io/biologica/';
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(defaultState);
+    const parsed = JSON.parse(raw);
+    return {
+      completedExps: Array.isArray(parsed.completedExps) ? parsed.completedExps : [],
+      quizCleared: Array.isArray(parsed.quizCleared) ? parsed.quizCleared : [],
+      settings: { ...defaultState.settings, ...(parsed.settings || {}) }
+    };
+  } catch {
+    return structuredClone(defaultState);
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function playSound(type) {
+  if (!appState.settings.sound) return;
+  try {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioCtx = new AudioContextClass();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(680, now + 0.06);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.start(now);
+      osc.stop(now + 0.07);
+    } else if (type === 'drop') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(750, now);
+      osc.frequency.exponentialRampToValueAtTime(340, now + 0.1);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    } else if (type === 'success' || type === 'unlock') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.09);
+      osc.frequency.setValueAtTime(783.99, now + 0.18);
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.setValueAtTime(175, now + 0.12);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+  } catch {
+    // ignore audio errors
+  }
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function getAllExperiments() {
+  const list = [];
+  SUBJECTS_DATA.forEach((subj) => {
+    subj.units.forEach((unit) => {
+      unit.experiments.forEach((exp) => list.push({ subj, unit, exp }));
+    });
+  });
+  return list;
+}
+
+function getUnlockedEquipmentIds() {
+  const ids = new Set();
+  getAllExperiments().forEach(({ exp }) => {
+    if (appState.completedExps.includes(exp.id)) {
+      (exp.equipmentIds || []).forEach((id) => ids.add(id));
+    }
+  });
+  return ids;
+}
+
+function completeExperiment(exp) {
+  const isNew = !appState.completedExps.includes(exp.id);
+  if (isNew) {
+    appState.completedExps.push(exp.id);
+    saveState();
+    playSound('unlock');
+    showToast('🎉 実験クリア！器具図鑑＆クイズが解放されました！');
+  } else {
+    playSound('success');
+    showToast('✅ 実験を記録しました！');
+  }
+  updateTitleProgress();
+}
+
+function applySettings() {
+  const s = appState.settings;
+  const root = document.documentElement;
+  root.setAttribute('data-theme', s.theme);
+  root.setAttribute('data-fontsize', s.fontSize);
+  root.setAttribute('data-ruby', s.ruby ? 'on' : 'off');
+
+  document.getElementById('btn-quick-ruby').textContent = `あ ふりがな: ${s.ruby ? 'ON' : 'OFF'}`;
+  document.getElementById('btn-quick-font').textContent = `🔍 文字: ${s.fontSize === 'large' ? '大きめ' : '標準'}`;
+  document.getElementById('btn-quick-theme').textContent = s.theme === 'dark' ? '🌙 ダーク' : '☀️ ライト';
+  document.getElementById('btn-quick-sound').textContent = s.sound ? '🔊 音ON' : '🔇 音OFF';
+
+  const setSound = document.getElementById('set-sound');
+  setSound.textContent = s.sound ? 'ON' : 'OFF';
+  setSound.classList.toggle('on', s.sound);
+
+  const setRuby = document.getElementById('set-ruby');
+  setRuby.textContent = s.ruby ? 'ON' : 'OFF';
+  setRuby.classList.toggle('on', s.ruby);
+
+  const setFont = document.getElementById('set-font');
+  setFont.textContent = s.fontSize === 'large' ? '大きめ' : '標準';
+  setFont.classList.toggle('on', s.fontSize === 'large');
+
+  const setGuide = document.getElementById('set-guide');
+  setGuide.textContent = s.guide ? 'ON' : 'OFF';
+  setGuide.classList.toggle('on', s.guide);
+
+  const setTheme = document.getElementById('set-theme');
+  setTheme.textContent = s.theme === 'dark' ? 'ダーク' : 'ライト';
+  setTheme.classList.toggle('on', s.theme === 'dark');
+
+  const banner = document.getElementById('sim-guide-banner');
+  if (banner) {
+    banner.style.display = s.guide ? 'flex' : 'none';
+  }
+}
+
+function updateTitleProgress() {
+  const totalExps = getAllExperiments().length;
+  const doneExps = appState.completedExps.length;
+  const unlockedEquips = getUnlockedEquipmentIds().size;
+  const totalEquips = EQUIPMENT_MASTER.length;
+  document.getElementById('title-progress').textContent =
+    `体験済み実験：${doneExps} / ${totalExps} ｜ 解放器具：${unlockedEquips} / ${totalEquips}`;
+}
+
+function showScreen(screenId) {
+  stopPvVideo();
+  if (typeof SimCanvas !== 'undefined') SimCanvas.stop();
+  document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderSubjects() {
+  const grid = document.getElementById('subject-grid');
+  grid.innerHTML = '';
+
+  SUBJECTS_DATA.forEach((subj) => {
+    const exps = [];
+    subj.units.forEach((u) => u.experiments.forEach((e) => exps.push(e)));
+    const doneCount = exps.filter((e) => appState.completedExps.includes(e.id)).length;
+
+    const btn = document.createElement('button');
+    btn.className = `subject-card ${subj.id}`;
+    btn.innerHTML = `
+      <div class="subject-icon">${subj.icon}</div>
+      <h3 class="subject-name">${subj.ruby}</h3>
+      <p class="subject-desc">${subj.desc}</p>
+      <div class="subject-stat">体験済み：${doneCount} / ${exps.length}</div>
+    `;
+    btn.addEventListener('click', () => {
+      playSound('click');
+      currentSubject = subj;
+      renderUnits(subj);
+      showScreen('screen-units');
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function renderUnits(subj) {
+  document.getElementById('units-heading').innerHTML = `${subj.icon} ${subj.ruby}の単元をえらぼう`;
+  const container = document.getElementById('units-container');
+  container.innerHTML = '';
+
+  subj.units.forEach((unit) => {
+    const doneCount = unit.experiments.filter((e) => appState.completedExps.includes(e.id)).length;
+    const btn = document.createElement('button');
+    btn.className = 'unit-card';
+    btn.innerHTML = `
+      <div style="font-size:1.8em;">📂</div>
+      <h3 class="subject-name" style="font-size:1.15em;">${unit.name}</h3>
+      <div class="subject-stat">実験数：${unit.experiments.length}（体験済み：${doneCount}）</div>
+    `;
+    btn.addEventListener('click', () => {
+      playSound('click');
+      currentUnit = unit;
+      renderExperiments(subj, unit);
+      showScreen('screen-experiments');
+    });
+    container.appendChild(btn);
+  });
+}
+
+function renderExperiments(subj, unit) {
+  document.getElementById('experiments-heading').innerHTML = `${subj.icon} ${unit.name}`;
+  const container = document.getElementById('experiments-container');
+  container.innerHTML = '';
+
+  unit.experiments.forEach((exp) => {
+    const isDone = appState.completedExps.includes(exp.id);
+    const badgeHtml = isDone
+      ? `<span class="badge badge-done">✅ 体験済み</span>`
+      : exp.playable
+      ? `<span class="badge badge-playable">🧪 実験体験OK</span>`
+      : `<span class="badge badge-plan">🎬 動画先行公開</span>`;
+
+    const card = document.createElement('div');
+    card.className = 'exp-card';
+    card.innerHTML = `
+      <div class="exp-card-top">
+        <h4 class="exp-name">${exp.name}</h4>
+        ${badgeHtml}
+      </div>
+      <p class="exp-summary">${exp.summary}</p>
+      <div class="exp-actions">
+        <button class="action-btn sim" ${exp.playable ? '' : 'disabled'}>
+          🧪 ${exp.playable ? '実際に実験する' : '体験版準備中'}
+        </button>
+        <button class="action-btn video">🎬 動画を視聴する</button>
+      </div>
+    `;
+
+    const simBtn = card.querySelector('.action-btn.sim');
+    if (exp.playable) {
+      simBtn.addEventListener('click', () => {
+        playSound('click');
+        openSimulation(exp);
+      });
+    }
+
+    card.querySelector('.action-btn.video').addEventListener('click', () => {
+      playSound('click');
+      openVideo(exp);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function openSimulation(exp) {
+  currentExp = exp;
+  document.getElementById('sim-heading').innerHTML = `🧪 ${exp.name}`;
+  const pointBox = document.getElementById('sim-point-box');
+  pointBox.style.display = 'block';
+  pointBox.innerHTML = `<strong>📌 ポイント：</strong>${exp.points[0]}`;
+
+  showScreen('screen-sim');
+
+  if (exp.simType === 'neutralization') initNeutralizationSim(exp);
+  else if (exp.simType === 'flame') initFlameSim(exp);
+  else if (exp.simType === 'precipitate') initPrecipitateSim(exp);
+  else if (exp.simType === 'microscope') initMicroscopeSim(exp);
+  else if (exp.simType === 'resonance') initResonanceSim(exp);
+  else if (exp.simType === 'induction') initInductionSim(exp);
+  else if (exp.simType === 'step_lab') initStepLabSim(exp);
+  else if (exp.simType === 'slider_lab') initSliderLabSim(exp);
+}
+
+function initStepLabSim(exp) {
+  const cfg = exp.simConfig;
+  const stages = cfg.stages || [];
+  let activeIdx = -1;
+  const visited = new Set();
+  let completed = false;
+
+  const stageEl = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  setGuide(cfg.guide || '下の操作ボタンを順番に試して反応を確かめよう！');
+
+  stageEl.innerHTML = `
+    <canvas id="sim-anim-canvas" width="320" height="190" style="width:100%; max-width:360px; border-radius:14px; border:2px solid var(--border-color); background:#0f172a;"></canvas>
+    <div id="step-status-text" style="font-weight:900; text-align:center; max-width:540px;">下のボタンを押して実験操作を行おう！</div>
+  `;
+
+  SimCanvas.start('sim-anim-canvas', (ctx, W, H, t) => {
+    const curr = activeIdx >= 0 ? stages[activeIdx] : null;
+    SimCanvas.drawStepScene(exp.id, ctx, W, H, t, activeIdx, curr);
+  });
+
+  function renderControls() {
+    const curr = activeIdx >= 0 ? stages[activeIdx] : null;
+    const stText = document.getElementById('step-status-text');
+    if (stText) {
+      stText.textContent = curr ? curr.text : '下のボタンを押して実験操作を行おう！';
+    }
+
+    readout.innerHTML = `<div class="readout-chip">確認済みステップ：${visited.size} / ${stages.length}</div>`;
+
+    controls.innerHTML = '';
+    stages.forEach((st, idx) => {
+      const b = document.createElement('button');
+      b.className = `lab-btn ${activeIdx === idx ? 'success' : ''}`;
+      b.textContent = `${visited.has(idx) ? '✅ ' : ''}${st.label}`;
+      b.onclick = () => {
+        playSound('drop');
+        activeIdx = idx;
+        visited.add(idx);
+        if (visited.size >= stages.length && !completed) {
+          completed = true;
+          completeExperiment(exp);
+        }
+        renderControls();
+      };
+      controls.appendChild(b);
+    });
+  }
+
+  renderControls();
+}
+
+function initSliderLabSim(exp) {
+  const cfg = exp.simConfig;
+  let val = cfg.initial;
+  let completed = false;
+
+  const stageEl = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  setGuide(cfg.guide || 'スライダーを動かして数値と現象の変化を観察しよう！');
+
+  const stepAttr = Number.isInteger(cfg.min) && Number.isInteger(cfg.max) ? '1' : '0.05';
+
+  stageEl.innerHTML = `
+    <canvas id="sim-anim-canvas" width="320" height="190" style="width:100%; max-width:360px; border-radius:14px; border:2px solid var(--border-color); background:#0f172a;"></canvas>
+    <div id="sl-status" style="font-weight:900; text-align:center; max-width:560px;"></div>
+    <div style="width:100%; max-width:340px;">
+      <label style="font-weight:800; display:block; margin-bottom:4px;">${cfg.label}：</label>
+      <input type="range" id="sl-input" min="${cfg.min}" max="${cfg.max}" step="${stepAttr}" value="${val}" style="width:100%;">
+    </div>
+  `;
+
+  controls.innerHTML = '';
+
+  SimCanvas.start('sim-anim-canvas', (ctx, W, H, t) => {
+    SimCanvas.drawSliderScene(exp.id, ctx, W, H, t, val);
+  });
+
+  function update() {
+    const info = cfg.describe(val);
+    const stEl = document.getElementById('sl-status');
+    if (stEl) {
+      stEl.textContent = info.status;
+    }
+    readout.innerHTML = `<div class="readout-chip">${cfg.label}：${val} ${cfg.unit}</div>`;
+
+    if (cfg.targetCheck && cfg.targetCheck(val) && !completed) {
+      completed = true;
+      completeExperiment(exp);
+    }
+  }
+
+  document.getElementById('sl-input').addEventListener('input', (e) => {
+    val = Number(e.target.value);
+    update();
+  });
+
+  update();
+}
+
+function setGuide(text) {
+  document.getElementById('sim-guide-text').textContent = text;
+}
+
+function initNeutralizationSim(exp) {
+  let btbAdded = false;
+  let naohDrops = 0;
+  let completed = false;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function render() {
+    let liquidColor = 'rgba(226, 232, 240, 0.55)';
+    let stateLabel = '無色透明（BTB未投入）';
+    let phVal = '1.0';
+
+    if (btbAdded) {
+      if (naohDrops < 10) {
+        liquidColor = '#facc15';
+        stateLabel = '🟡 黄色（酸性）';
+        phVal = (1.0 + naohDrops * 0.45).toFixed(1);
+      } else if (naohDrops === 10) {
+        liquidColor = '#22c55e';
+        stateLabel = '🟢 緑色（ちょうど中性・中和点！）';
+        phVal = '7.0';
+      } else {
+        liquidColor = '#2563eb';
+        stateLabel = '🔵 青色（塩基性）';
+        phVal = Math.min(13.0, 9.5 + (naohDrops - 10) * 0.5).toFixed(1);
+      }
+    }
+
+    const heightPct = 35 + Math.min(naohDrops * 2.5, 45);
+    stage.innerHTML = `
+      <div style="font-size:0.9em; font-weight:800; color:var(--text-sub);">ビュレットから NaOH を滴下</div>
+      <div style="font-size:1.5em;">💧</div>
+      <div class="beaker-wrap">
+        <div class="beaker-liquid" style="height:${heightPct}%; background-color:${liquidColor};"></div>
+      </div>
+      <div style="font-weight:900; font-size:1.1em;">${stateLabel}</div>
+    `;
+
+    readout.innerHTML = `
+      <div class="readout-chip">滴下量：${naohDrops} mL</div>
+      <div class="readout-chip">pH：${phVal}</div>
+    `;
+
+    controls.innerHTML = '';
+
+    if (!btbAdded) {
+      setGuide('まずは「BTB溶液を入れる」を押して指示薬を加えよう！');
+      const btnBtb = document.createElement('button');
+      btnBtb.className = 'lab-btn';
+      btnBtb.textContent = '💧 BTB溶液を入れる';
+      btnBtb.onclick = () => {
+        playSound('drop');
+        btbAdded = true;
+        render();
+      };
+      controls.appendChild(btnBtb);
+    } else {
+      if (naohDrops < 10) {
+        setGuide('水酸化ナトリウム（NaOH）を1mLずつ滴下して、緑色（中和点）を目指そう！');
+      } else if (naohDrops === 10) {
+        setGuide('バッチリ！緑色（中和点）になりました！そのまま完了するか、さらに足して変化も見よう！');
+        if (!completed) {
+          completed = true;
+          completeExperiment(exp);
+        }
+      } else {
+        setGuide('OH-が余って青色（塩基性）になりました！リセットして何度でも試せます。');
+      }
+
+      const btnDrop = document.createElement('button');
+      btnDrop.className = 'lab-btn';
+      btnDrop.textContent = '💧 NaOHを 1mL 滴下';
+      btnDrop.onclick = () => {
+        playSound('drop');
+        naohDrops++;
+        render();
+      };
+      controls.appendChild(btnDrop);
+    }
+
+    const btnReset = document.createElement('button');
+    btnReset.className = 'lab-btn secondary';
+    btnReset.textContent = '🔄 やり直す';
+    btnReset.onclick = () => {
+      playSound('click');
+      btbAdded = false;
+      naohDrops = 0;
+      render();
+    };
+    controls.appendChild(btnReset);
+  }
+
+  render();
+}
+
+function initFlameSim(exp) {
+  const elements = [
+    { key: 'Li', name: 'Li（リチウム）', color: '#ef4444', label: '🔴 赤色（深赤色）' },
+    { key: 'Na', name: 'Na（ナトリウム）', color: '#facc15', label: '🟡 黄色' },
+    { key: 'K', name: 'K（カリウム）', color: '#c084fc', label: '🟣 赤紫色（淡紫）' },
+    { key: 'Cu', name: 'Cu（銅）', color: '#10b981', label: '🟢 青緑色' },
+    { key: 'Ca', name: 'Ca（カルシウム）', color: '#fb923c', label: '🟠 橙赤色' },
+    { key: 'Ba', name: 'Ba（バリウム）', color: '#a3e635', label: '💚 黄緑色' }
+  ];
+
+  let tested = new Set();
+  let currentElem = null;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function render() {
+    const flameStyle = currentElem
+      ? `background: radial-gradient(circle at bottom, #ffffff, ${currentElem.color} 55%, transparent 95%); filter: drop-shadow(0 0 18px ${currentElem.color});`
+      : '';
+
+    stage.innerHTML = `
+      <div class="flame-burner" style="height:120px;">
+        <div class="flame-cone" style="${flameStyle}"></div>
+      </div>
+      <div style="width:70px; height:14px; background:#475569; border-radius:4px;"></div>
+      <div style="font-weight:900; font-size:1.15em;">
+        ${currentElem ? `${currentElem.name} → ${currentElem.label}` : '元の青い炎（外炎）'}
+      </div>
+    `;
+
+    readout.innerHTML = `
+      <div class="readout-chip">確認した元素：${tested.size} / ${elements.length}</div>
+    `;
+
+    setGuide(
+      tested.size >= 3
+        ? 'いろいろな炎色反応を確認できました！残りの元素も試してみよう！'
+        : '下の金属イオンボタンを押して、ガスバーナーの炎に近づけよう（3種類以上で実験クリア！）'
+    );
+
+    controls.innerHTML = '';
+    elements.forEach((el) => {
+      const b = document.createElement('button');
+      b.className = 'lab-btn';
+      b.style.background = el.key === currentElem?.key ? '#0f172a' : '';
+      b.textContent = `${tested.has(el.key) ? '✅ ' : '🔥 '}${el.name}`;
+      b.onclick = () => {
+        playSound('drop');
+        currentElem = el;
+        tested.add(el.key);
+        if (tested.size === 3) {
+          completeExperiment(exp);
+        }
+        render();
+      };
+      controls.appendChild(b);
+    });
+  }
+
+  render();
+}
+
+function initPrecipitateSim(exp) {
+  const ions = {
+    Ag: { name: 'Ag+', label: 'Ag+（銀）', baseColor: 'rgba(226,232,240,0.4)' },
+    Pb: { name: 'Pb2+', label: 'Pb2+（鉛II）', baseColor: 'rgba(226,232,240,0.4)' },
+    Cu: { name: 'Cu2+', label: 'Cu2+（銅II）', baseColor: 'rgba(56,189,248,0.45)' },
+    Fe2: { name: 'Fe2+', label: 'Fe2+（鉄II）', baseColor: 'rgba(134,239,172,0.45)' },
+    Fe3: { name: 'Fe3+', label: 'Fe3+（鉄III）', baseColor: 'rgba(251,191,36,0.5)' },
+    Al: { name: 'Al3+', label: 'Al3+（アルミニウム）', baseColor: 'rgba(226,232,240,0.4)' },
+    Zn: { name: 'Zn2+', label: 'Zn2+（亜鉛）', baseColor: 'rgba(226,232,240,0.4)' },
+    Ba: { name: 'Ba2+', label: 'Ba2+（バリウム）', baseColor: 'rgba(226,232,240,0.4)' },
+    Ca: { name: 'Ca2+', label: 'Ca2+（カルシウム）', baseColor: 'rgba(226,232,240,0.4)' }
+  };
+
+  const reagents = [
+    { id: 'hcl', label: '💧 塩酸（Cl-）' },
+    { id: 'naoh_s', label: '💧 NaOH（少量）' },
+    { id: 'naoh_ex', label: '🌊 NaOH（過剰）' },
+    { id: 'nh3_s', label: '💧 NH3水（少量）' },
+    { id: 'nh3_ex', label: '🌊 NH3水（過剰）' },
+    { id: 'h2s_acid', label: '🫧 H2S（酸性）' },
+    { id: 'h2s_base', label: '🫧 H2S（塩基性）' },
+    { id: 'so4', label: '💧 希硫酸（SO4^2-）' },
+    { id: 'cro4', label: '🟡 K2CrO4（CrO4^2-）' }
+  ];
+
+  const P_WHITE = '#f8fafc';
+  const P_BLACK = '#1e293b';
+  const P_BROWN = '#854d0e';
+  const P_REDBROWN = '#9a3412';
+  const P_BLUEWHITE = '#38bdf8';
+  const P_GREENWHITE = '#86efac';
+  const P_YELLOW = '#facc15';
+
+  const reactions = {
+    Ag: {
+      hcl: { c: P_WHITE, desc: '⚪ 白色沈殿（AgCl）※希硝酸に溶けないが、NH3水に溶ける！' },
+      naoh_s: { c: P_BROWN, desc: '🟤 褐色沈殿（酸化銀 Ag2O）※AgOHが不安定ですぐ分解' },
+      naoh_ex: { c: P_BROWN, desc: '🟤 褐色沈殿のまま（両性ではないので過剰NaOHに不溶）' },
+      nh3_s: { c: P_BROWN, desc: '🟤 褐色沈殿（Ag2O）ができた！' },
+      nh3_ex: { c: null, liq: 'rgba(226,232,240,0.25)', desc: '✨ 無色透明に再溶解！（錯イオン [Ag(NH3)2]+）' },
+      h2s_acid: { c: P_BLACK, desc: '⚫ 黒色沈殿（Ag2S）※酸性でも沈殿！' },
+      h2s_base: { c: P_BLACK, desc: '⚫ 黒色沈殿（Ag2S）' },
+      so4: { c: null, desc: '変化なし（Ag2SO4は少溶だが希硫酸では通常沈殿しない）' },
+      cro4: { c: P_REDBROWN, desc: '🟫 赤褐色沈殿（Ag2CrO4：クロム酸銀）！' }
+    },
+    Pb: {
+      hcl: { c: P_WHITE, desc: '⚪ 白色沈殿（PbCl2）※「熱湯」には溶けるのがポイント！' },
+      naoh_s: { c: P_WHITE, desc: '⚪ 白色沈殿（Pb(OH)2）' },
+      naoh_ex: { c: null, liq: 'rgba(226,232,240,0.25)', desc: '✨ 無色透明に再溶解！（両性水酸化物 → [Pb(OH)4]2-）' },
+      nh3_s: { c: P_WHITE, desc: '⚪ 白色沈殿（Pb(OH)2）' },
+      nh3_ex: { c: P_WHITE, desc: '⚪ 白色沈殿のまま（Pb2+はNH3錯イオンを作らない！）' },
+      h2s_acid: { c: P_BLACK, desc: '⚫ 黒色沈殿（PbS）※酸性でも沈殿！' },
+      h2s_base: { c: P_BLACK, desc: '⚫ 黒色沈殿（PbS）' },
+      so4: { c: P_WHITE, desc: '⚪ 白色沈殿（PbSO4）' },
+      cro4: { c: P_YELLOW, desc: '🟡 黄色沈殿（PbCrO4：クロム酸鉛）！' }
+    },
+    Cu: {
+      hcl: { c: null, desc: '変化なし（青い溶液のまま）' },
+      naoh_s: { c: P_BLUEWHITE, desc: '🩵 青白色沈殿（Cu(OH)2）' },
+      naoh_ex: { c: P_BLUEWHITE, desc: '🩵 青白色沈殿のまま（過剰NaOHに溶けない）' },
+      nh3_s: { c: P_BLUEWHITE, desc: '🩵 青白色沈殿（Cu(OH)2）' },
+      nh3_ex: { c: null, liq: '#1e3a8a', desc: '🔵 「深青色」に再溶解！（錯イオン [Cu(NH3)4]2+）' },
+      h2s_acid: { c: P_BLACK, desc: '⚫ 黒色沈殿（CuS）※酸性でも沈殿！' },
+      h2s_base: { c: P_BLACK, desc: '⚫ 黒色沈殿（CuS）' },
+      so4: { c: null, desc: '変化なし（青色溶液のまま）' },
+      cro4: { c: null, desc: '試験頻出の難溶性クロム酸塩ではない（変化なし扱い）' }
+    },
+    Fe2: {
+      hcl: { c: null, desc: '変化なし（淡緑色溶液のまま）' },
+      naoh_s: { c: P_GREENWHITE, desc: '🥬 緑白色沈殿（Fe(OH)2）※空気中で酸化すると赤褐色へ' },
+      naoh_ex: { c: P_GREENWHITE, desc: '🥬 緑白色沈殿のまま（過剰NaOHに不溶）' },
+      nh3_s: { c: P_GREENWHITE, desc: '🥬 緑白色沈殿（Fe(OH)2）' },
+      nh3_ex: { c: P_GREENWHITE, desc: '🥬 緑白色沈殿のまま（NH3過剰に不溶）' },
+      h2s_acid: { c: null, desc: '❌ 沈殿しない！（イオン化傾向が比較的大きいため酸性では溶ける）' },
+      h2s_base: { c: P_BLACK, desc: '⚫ 黒色沈殿（FeS）※塩基性なら沈殿する！' },
+      so4: { c: null, desc: '変化なし' },
+      cro4: { c: null, desc: '変化なし' }
+    },
+    Fe3: {
+      hcl: { c: null, desc: '変化なし（黄褐色溶液のまま）' },
+      naoh_s: { c: P_REDBROWN, desc: '🟫 赤褐色沈殿（Fe(OH)3）' },
+      naoh_ex: { c: P_REDBROWN, desc: '🟫 赤褐色沈殿のまま（過剰NaOHに不溶）' },
+      nh3_s: { c: P_REDBROWN, desc: '🟫 赤褐色沈殿（Fe(OH)3）' },
+      nh3_ex: { c: P_REDBROWN, desc: '🟫 赤褐色沈殿のまま（NH3過剰に不溶）' },
+      h2s_acid: { c: P_WHITE, desc: '⚪ 硫化物は沈殿しないが、Fe3+が還元され単体の硫黄 S（白濁）が析出！' },
+      h2s_base: { c: P_BLACK, desc: '⚫ 黒色沈殿（FeS / Fe2S3）' },
+      so4: { c: null, desc: '変化なし' },
+      cro4: { c: null, desc: '変化なし' }
+    },
+    Al: {
+      hcl: { c: null, desc: '変化なし' },
+      naoh_s: { c: P_WHITE, desc: '⚪ 白色ゲル状沈殿（Al(OH)3）' },
+      naoh_ex: { c: null, liq: 'rgba(226,232,240,0.25)', desc: '✨ 無色透明に再溶解！（両性水酸化物 → [Al(OH)4]-）' },
+      nh3_s: { c: P_WHITE, desc: '⚪ 白色ゲル状沈殿（Al(OH)3）' },
+      nh3_ex: { c: P_WHITE, desc: '⚪ 白色沈殿のまま！（Al3+はNH3錯イオンを作らない！）' },
+      h2s_acid: { c: null, desc: '❌ 沈殿しない！' },
+      h2s_base: { c: P_WHITE, desc: '⚪ 硫化物ではなく白色沈殿 Al(OH)3 が生じる！' },
+      so4: { c: null, desc: '変化なし' },
+      cro4: { c: null, desc: '変化なし' }
+    },
+    Zn: {
+      hcl: { c: null, desc: '変化なし' },
+      naoh_s: { c: P_WHITE, desc: '⚪ 白色沈殿（Zn(OH)2）' },
+      naoh_ex: { c: null, liq: 'rgba(226,232,240,0.25)', desc: '✨ 無色透明に再溶解！（両性水酸化物 → [Zn(OH)4]2-）' },
+      nh3_s: { c: P_WHITE, desc: '⚪ 白色沈殿（Zn(OH)2）' },
+      nh3_ex: { c: null, liq: 'rgba(226,232,240,0.25)', desc: '✨ 無色透明に再溶解！（錯イオン [Zn(NH3)4]2+）' },
+      h2s_acid: { c: null, desc: '❌ 酸性では沈殿しない！（Zn2+は塩基性で沈殿）' },
+      h2s_base: { c: P_WHITE, desc: '⚪ 珍しい「白色」の硫化物沈殿（ZnS）！！' },
+      so4: { c: null, desc: '変化なし' },
+      cro4: { c: null, desc: '変化なし' }
+    },
+    Ba: {
+      hcl: { c: null, desc: '変化なし' },
+      naoh_s: { c: null, desc: '❌ 沈殿しない！（アルカリ土類金属の水酸化物は強塩基で水溶性）' },
+      naoh_ex: { c: null, desc: '❌ 沈殿しない！' },
+      nh3_s: { c: null, desc: '❌ 沈殿しない！' },
+      nh3_ex: { c: null, desc: '❌ 沈殿しない！' },
+      h2s_acid: { c: null, desc: '❌ 沈殿しない！' },
+      h2s_base: { c: null, desc: '❌ 沈殿しない！' },
+      so4: { c: P_WHITE, desc: '⚪ 白色沈殿（BaSO4）※酸にも溶けない超安定沈殿！' },
+      cro4: { c: P_YELLOW, desc: '🟡 黄色沈殿（BaCrO4）！' }
+    },
+    Ca: {
+      hcl: { c: null, desc: '変化なし' },
+      naoh_s: { c: null, desc: '❌ ほぼ沈殿しない（高濃度ではCa(OH)2が少し白濁）' },
+      naoh_ex: { c: null, desc: '❌ ほぼ沈殿しない' },
+      nh3_s: { c: null, desc: '❌ 沈殿しない！' },
+      nh3_ex: { c: null, desc: '❌ 沈殿しない！' },
+      h2s_acid: { c: null, desc: '❌ 沈殿しない！' },
+      h2s_base: { c: null, desc: '❌ 沈殿しない！' },
+      so4: { c: P_WHITE, desc: '⚪ 白色沈殿（CaSO4）' },
+      cro4: { c: null, desc: '❌ CaCrO4は水に溶けるため沈殿しない！（Ba2+との見分けに使える）' }
+    }
+  };
+
+  let selectedIon = 'Cu';
+  let selectedReagent = null;
+  const testedCombos = new Set();
+  let completed = false;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function render() {
+    const ionObj = ions[selectedIon];
+    const rxn = selectedReagent ? reactions[selectedIon][selectedReagent] : null;
+    const liqColor = rxn && rxn.liq ? rxn.liq : ionObj.baseColor;
+    const precipH = rxn && rxn.c ? '34px' : '0px';
+    const precipC = rxn && rxn.c ? rxn.c : 'transparent';
+    const desc = rxn ? rxn.desc : `${ionObj.label} の水溶液（下の試薬を選んで加えよう！）`;
+
+    stage.innerHTML = `
+      <div class="beaker-wrap">
+        <div class="beaker-liquid" style="height:65%; background-color:${liqColor};">
+          <div class="precipitate-layer" style="height:${precipH}; background-color:${precipC};"></div>
+        </div>
+      </div>
+      <div style="font-weight:900; text-align:center; max-width:560px;">${desc}</div>
+    `;
+
+    readout.innerHTML = `
+      <div class="readout-chip">選択イオン：${ionObj.label}</div>
+      <div class="readout-chip">試した組み合わせ：${testedCombos.size} 通り</div>
+    `;
+
+    setGuide(
+      testedCombos.size >= 5
+        ? 'いろいろな沈殿＆再溶解パターンを試せました！他のイオン・試薬も自由に検証しよう！'
+        : '①上の段で「金属イオン」を選び、②下の段で「試薬」を加えて反応を見よう（5通り以上でクリア！）'
+    );
+
+    controls.innerHTML = '';
+
+    const ionLabel = document.createElement('div');
+    ionLabel.style.cssText = 'width:100%; font-weight:800; font-size:0.88em; text-align:center; color:var(--text-sub);';
+    ionLabel.textContent = '① 調べる金属イオンをえらぶ：';
+    controls.appendChild(ionLabel);
+
+    Object.keys(ions).forEach((k) => {
+      const b = document.createElement('button');
+      b.className = `lab-btn ${selectedIon === k ? 'success' : 'secondary'}`;
+      b.style.padding = '8px 12px';
+      b.style.fontSize = '0.88em';
+      b.textContent = ions[k].label;
+      b.onclick = () => {
+        playSound('click');
+        selectedIon = k;
+        selectedReagent = null;
+        render();
+      };
+      controls.appendChild(b);
+    });
+
+    const regLabel = document.createElement('div');
+    regLabel.style.cssText = 'width:100%; font-weight:800; font-size:0.88em; text-align:center; color:var(--text-sub); margin-top:6px;';
+    regLabel.textContent = '② 加える試薬をえらぶ：';
+    controls.appendChild(regLabel);
+
+    reagents.forEach((rg) => {
+      const b = document.createElement('button');
+      b.className = 'lab-btn';
+      b.style.padding = '9px 12px';
+      b.style.fontSize = '0.88em';
+      if (selectedReagent === rg.id) b.style.outline = '3px solid #f59e0b';
+      b.textContent = rg.label;
+      b.onclick = () => {
+        playSound('drop');
+        selectedReagent = rg.id;
+        testedCombos.add(`${selectedIon}_${rg.id}`);
+        if (testedCombos.size >= 5 && !completed) {
+          completed = true;
+          completeExperiment(exp);
+        }
+        render();
+      };
+      controls.appendChild(b);
+    });
+  }
+
+  render();
+}
+
+function initMicroscopeSim(exp) {
+  let zoom = 100;
+  let focus = 20;
+  let completed = false;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function updateVisualOnly() {
+    const blurAmt = Math.abs(focus - 75) * 0.16;
+    const scaleVal = zoom === 400 ? 1.55 : 1.0;
+    const cells = document.getElementById('micro-cells');
+    if (cells) {
+      cells.style.filter = `blur(${blurAmt.toFixed(1)}px)`;
+      cells.style.transform = `scale(${scaleVal})`;
+    }
+    const isSharp = Math.abs(focus - 75) <= 6;
+    const msg = document.getElementById('micro-status');
+    if (msg) {
+      msg.textContent = isSharp && zoom === 400
+        ? '✨ クッキリ見える！中期・後期の染色体がはっきり観察できた！'
+        : isSharp
+        ? '👌 ピントが合った！次は「高倍率（400倍）」にしてみよう！'
+        : '🔍 スライダーを動かしてピントを合わせよう（ぼやけています）';
+    }
+    readout.innerHTML = `
+      <div class="readout-chip">倍率：${zoom}倍</div>
+      <div class="readout-chip">ピント：${isSharp ? '良好' : '調整中'}</div>
+    `;
+    if (isSharp && zoom === 400 && !completed) {
+      completed = true;
+      completeExperiment(exp);
+    }
+  }
+
+  stage.innerHTML = `
+    <div class="microscope-view">
+      <div class="microscope-cells" id="micro-cells">🧬🔴🦠<br>🔴🧬🧫</div>
+    </div>
+    <div id="micro-status" style="font-weight:900; text-align:center;"></div>
+    <div style="width:100%; max-width:300px;">
+      <label style="font-weight:800; display:block; margin-bottom:4px;">ピント調整ねじ：</label>
+      <input type="range" id="focus-slider" min="0" max="100" value="${focus}" style="width:100%;">
+    </div>
+  `;
+
+  controls.innerHTML = '';
+  const btnLow = document.createElement('button');
+  btnLow.className = 'lab-btn';
+  btnLow.textContent = '🔎 低倍率（100倍）';
+  btnLow.onclick = () => { playSound('click'); zoom = 100; updateVisualOnly(); };
+
+  const btnHigh = document.createElement('button');
+  btnHigh.className = 'lab-btn success';
+  btnHigh.textContent = '🔬 高倍率（400倍）';
+  btnHigh.onclick = () => { playSound('click'); zoom = 400; updateVisualOnly(); };
+
+  controls.appendChild(btnLow);
+  controls.appendChild(btnHigh);
+
+  document.getElementById('focus-slider').addEventListener('input', (e) => {
+    focus = Number(e.target.value);
+    updateVisualOnly();
+  });
+
+  setGuide('まずピント調整スライダーでくっきりさせて、高倍率（400倍）で染色体を観察しよう！');
+  updateVisualOnly();
+}
+
+function initResonanceSim(exp) {
+  let depth = 10;
+  let found1 = false;
+  let found2 = false;
+  let completed = false;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function update() {
+    const near1 = Math.abs(depth - 18) <= 2;
+    const near2 = Math.abs(depth - 54) <= 2;
+    const isRes = near1 || near2;
+    if (near1) found1 = true;
+    if (near2) found2 = true;
+
+    const tube = document.getElementById('res-water');
+    if (tube) {
+      tube.style.height = `${Math.max(10, 100 - depth)}%`;
+    }
+    const label = document.getElementById('res-label');
+    if (label) {
+      label.textContent = isRes
+        ? '🔊 ボォォォン！！大きく共鳴した！（定常波発生！）'
+        : '〰️ 小さな音...（水面を動かして共鳴点を探そう）';
+      label.style.color = isRes ? '#16a34a' : '';
+    }
+    readout.innerHTML = `
+      <div class="readout-chip">水面までの深さ：${depth} cm</div>
+      <div class="readout-chip">発見した共鳴点：${(found1 ? 1 : 0) + (found2 ? 1 : 0)} / 2</div>
+    `;
+
+    if (found1 && found2 && !completed) {
+      completed = true;
+      completeExperiment(exp);
+    }
+  }
+
+  stage.innerHTML = `
+    <div style="font-size:2em;">🔔</div>
+    <div class="beaker-wrap" style="width:70px; height:160px;">
+      <div class="beaker-liquid" id="res-water" style="background:#38bdf8; height:90%;"></div>
+    </div>
+    <div id="res-label" style="font-weight:900; text-align:center;"></div>
+    <div style="width:100%; max-width:320px;">
+      <label style="font-weight:800; display:block; margin-bottom:4px;">水面の位置（10cm 〜 65cm）：</label>
+      <input type="range" id="res-slider" min="10" max="65" value="${depth}" style="width:100%;">
+    </div>
+  `;
+
+  controls.innerHTML = '';
+  document.getElementById('res-slider').addEventListener('input', (e) => {
+    depth = Number(e.target.value);
+    if (Math.abs(depth - 18) <= 2 || Math.abs(depth - 54) <= 2) {
+      playSound('drop');
+    }
+    update();
+  });
+
+  setGuide('スライダーで水面を上下させて、2か所の共鳴する深さ（約18cm と 約54cm）を見つけよう！');
+  update();
+}
+
+function initInductionSim(exp) {
+  let stepsDone = 0;
+  let completed = false;
+
+  const stage = document.getElementById('sim-stage');
+  const readout = document.getElementById('sim-readout');
+  const controls = document.getElementById('sim-controls');
+
+  function triggerMove(dirLabel, angle, bulbOn) {
+    stepsDone++;
+    const needle = document.getElementById('galv-needle');
+    const bulb = document.getElementById('ind-bulb');
+    const status = document.getElementById('ind-status');
+
+    if (needle) needle.style.transform = `rotate(${angle}deg)`;
+    if (bulb) bulb.textContent = bulbOn ? '💡✨' : '🌑';
+    if (status) status.textContent = dirLabel;
+
+    if (bulbOn) {
+      playSound('drop');
+      setTimeout(() => {
+        if (needle) needle.style.transform = 'rotate(0deg)';
+        if (bulb) bulb.textContent = '🌑';
+      }, 900);
+    } else {
+      playSound('click');
+    }
+
+    if (stepsDone >= 3 && !completed) {
+      completed = true;
+      completeExperiment(exp);
+    }
+    readout.innerHTML = `<div class="readout-chip">実験操作回数：${stepsDone} 回</div>`;
+  }
+
+  stage.innerHTML = `
+    <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; justify-content:center;">
+      <div style="text-align:center;">
+        <div style="font-size:2.4em;">🧲🌀</div>
+        <div style="font-weight:800;">コイルと棒磁石</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:90px; height:90px; border-radius:50%; border:4px solid #334155; background:#fff; position:relative; display:flex; align-items:center; justify-content:center;">
+          <div id="galv-needle" style="width:4px; height:36px; background:#dc2626; transform-origin:bottom center; transition:transform 0.25s ease; position:absolute; bottom:45px;"></div>
+        </div>
+        <div style="font-weight:800;">検流計</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="ind-bulb" style="font-size:2.4em;">🌑</div>
+        <div style="font-weight:800;">豆電球</div>
+      </div>
+    </div>
+    <div id="ind-status" style="font-weight:900; text-align:center;">ボタンを押して磁石を動かそう！</div>
+  `;
+
+  readout.innerHTML = `<div class="readout-chip">実験操作回数：0 回</div>`;
+  setGuide('N極を「近づける」「止める」「引き抜く」の3パターンを試してみよう！');
+
+  controls.innerHTML = '';
+  const actions = [
+    { label: '➡️ N極を近づける', msg: '⚡ 右向きに誘導電流が流れた！', angle: 42, on: true },
+    { label: '⏸️ 磁石を止める', msg: '⏸️ 磁束が変化しないので電流 0！', angle: 0, on: false },
+    { label: '⬅️ N極を素早く引き抜く', msg: '⚡⚡ 左向きに強い誘導電流が流れた！', angle: -55, on: true }
+  ];
+
+  actions.forEach((act) => {
+    const b = document.createElement('button');
+    b.className = 'lab-btn';
+    b.textContent = act.label;
+    b.onclick = () => triggerMove(act.msg, act.angle, act.on);
+    controls.appendChild(b);
+  });
+}
+
+function stripRubyHtml(html) {
+  return html.replace(/<rt>.*?<\/rt>/g, '').replace(/<[^>]+>/g, '');
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const chars = Array.from(text);
+  let line = '';
+  let currY = y;
+  for (let i = 0; i < chars.length; i++) {
+    const testLine = line + chars[i];
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+      ctx.fillText(line, x, currY);
+      line = chars[i];
+      currY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) ctx.fillText(line, x, currY);
+}
+
+function stopPvVideo() {
+  pvPlaying = false;
+  if (pvRafId) {
+    cancelAnimationFrame(pvRafId);
+    pvRafId = null;
+  }
+  const btn = document.getElementById('btn-pv-play');
+  if (btn) btn.textContent = '▶ 再生';
+}
+
+function startPvVideo() {
+  if (pvPlaying) return;
+  pvPlaying = true;
+  pvLastTimestamp = performance.now();
+  const btn = document.getElementById('btn-pv-play');
+  if (btn) btn.textContent = '⏸ 一時停止';
+
+  function loop(now) {
+    if (!pvPlaying) return;
+    const dt = (now - pvLastTimestamp) / 1000;
+    pvLastTimestamp = now;
+    pvElapsed += dt;
+    if (pvElapsed >= PV_DURATION) {
+      pvElapsed = 0;
+    }
+    drawPvFrame(pvElapsed);
+    pvRafId = requestAnimationFrame(loop);
+  }
+  pvRafId = requestAnimationFrame(loop);
+}
+
+function openVideo(exp) {
+  currentExp = exp;
+  pvElapsed = 0;
+  stopPvVideo();
+
+  document.getElementById('video-heading').innerHTML = `🎬 ${exp.name}`;
+  const ptsList = document.getElementById('video-points-list');
+  ptsList.innerHTML = exp.points.map((p) => `<li>${p}</li>`).join('');
+
+  const ytBtn = document.getElementById('btn-youtube-search');
+  ytBtn.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(exp.youtubeQuery)}`;
+
+  document.getElementById('vtab-offline').classList.add('active');
+  document.getElementById('vtab-online').classList.remove('active');
+  document.getElementById('video-offline-pane').style.display = 'block';
+  document.getElementById('video-online-pane').style.display = 'none';
+
+  showScreen('screen-video');
+  startPvVideo();
+}
+
+function drawPvFrame(t) {
+  const canvas = document.getElementById('pv-canvas');
+  if (!canvas || !currentExp) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const progress = Math.min(1, t / PV_DURATION);
+
+  const fill = document.getElementById('video-progress-fill');
+  if (fill) fill.style.width = `${(progress * 100).toFixed(1)}%`;
+  const timeEl = document.getElementById('pv-time-label');
+  if (timeEl) {
+    const sec = Math.floor(t);
+    timeEl.textContent = `00:${String(sec).padStart(2, '0')} / 00:${PV_DURATION}`;
+  }
+
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0f172a');
+  bg.addColorStop(1, '#1e293b');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+  for (let i = 0; i < 8; i++) {
+    const px = ((i * 97 + t * 24) % (W + 40)) - 20;
+    const py = 50 + Math.sin(t * 1.5 + i) * 35 + (i % 3) * 85;
+    ctx.beginPath();
+    ctx.arc(px, py, 8 + (i % 3) * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const steps = currentExp.steps || [];
+  const stepCount = Math.max(1, steps.length);
+  const stepDur = PV_DURATION / stepCount;
+  const stepIdx = Math.min(stepCount - 1, Math.floor(t / stepDur));
+  const stepLocalT = (t % stepDur) / stepDur;
+  const st = steps[stepIdx] || { icon: '🧪', title: currentExp.name, desc: currentExp.summary };
+
+  ctx.fillStyle = '#3b82f6';
+  ctx.beginPath();
+  ctx.roundRect(22, 18, 220, 30, 15);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillText(`LAB LOGICA｜STEP ${stepIdx + 1}/${stepCount}`, 36, 38);
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = 'bold 22px sans-serif';
+  ctx.fillText(stripRubyHtml(currentExp.name), 24, 78);
+
+  ctx.save();
+  ctx.translate(150, 215);
+  drawPvVisualGraphic(ctx, currentExp.simType, t, progress);
+  ctx.restore();
+
+  const slideOffset = Math.max(0, 1 - stepLocalT * 5) * 24;
+  const cardX = 290 + slideOffset;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.strokeStyle = 'rgba(96, 165, 250, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(cardX, 105, 325, 210, 16);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillText(`${st.icon} ${st.title}`, cardX + 18, 140);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '16px sans-serif';
+  wrapCanvasText(ctx, st.desc, cardX + 18, 178, 288, 26);
+
+  for (let i = 0; i < stepCount; i++) {
+    ctx.fillStyle = i === stepIdx ? '#38bdf8' : 'rgba(255,255,255,0.25)';
+    ctx.beginPath();
+    ctx.arc(W / 2 - ((stepCount - 1) * 18) / 2 + i * 18, H - 18, i === stepIdx ? 6 : 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawPvVisualGraphic(ctx, simType, t, progress) {
+  if (simType === 'neutralization') {
+    const color = progress < 0.55 ? '#facc15' : progress < 0.75 ? '#22c55e' : '#3b82f6';
+    const dropY = -100 + ((t * 140) % 90);
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(0, dropY, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = color;
+    ctx.fillRect(-52, 5, 104, 65);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-55, -35, 110, 108);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(progress < 0.55 ? '酸性(黄)' : progress < 0.75 ? '中和点(緑)' : '塩基性(青)', 0, 96);
+    ctx.textAlign = 'left';
+  } else if (simType === 'flame') {
+    const colors = ['#ef4444', '#facc15', '#c084fc', '#10b981'];
+    const labels = ['Li (赤)', 'Na (黄)', 'K (赤紫)', 'Cu (青緑)'];
+    const idx = Math.floor(t / 4) % colors.length;
+    const flicker = Math.sin(t * 18) * 4;
+
+    ctx.fillStyle = colors[idx];
+    ctx.beginPath();
+    ctx.moveTo(0, -85 + flicker);
+    ctx.quadraticCurveTo(36, -10, 0, 45);
+    ctx.quadraticCurveTo(-36, -10, 0, -85 + flicker);
+    ctx.fill();
+
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-28, 45, 56, 20);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(labels[idx], 0, 92);
+    ctx.textAlign = 'left';
+  } else if (simType === 'resonance') {
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-35, -80, 70, 150);
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+    ctx.fillRect(-33, 10, 66, 58);
+
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let y = -80; y <= 10; y += 3) {
+      const amp = Math.sin(((y + 80) / 90) * Math.PI * 1.5) * 22 * Math.sin(t * 10);
+      if (y === -80) ctx.moveTo(amp, y);
+      else ctx.lineTo(amp, y);
+    }
+    ctx.stroke();
+  } else if (simType === 'induction') {
+    const mx = Math.sin(t * 3) * 45;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 5;
+    for (let i = -2; i <= 2; i++) {
+      ctx.strokeRect(-45 + i * 10, -35, 10, 70);
+    }
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(mx - 20, -16, 40, 32);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('N', mx, 5);
+    ctx.fillText('誘導電流 ⚡', 0, 82);
+    ctx.textAlign = 'left';
+  } else {
+    ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
+    ctx.fillRect(-50, -5, 100, 75);
+    for (let i = 0; i < 5; i++) {
+      const by = 60 - ((t * 50 + i * 18) % 60);
+      const bx = -30 + i * 15;
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.beginPath();
+      ctx.arc(bx, by, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-53, -40, 106, 112);
+  }
+}
+
+function renderEquipment() {
+  const grid = document.getElementById('equip-grid');
+  grid.innerHTML = '';
+  const unlockedIds = getUnlockedEquipmentIds();
+
+  EQUIPMENT_MASTER.forEach((eq) => {
+    const isUnlocked = unlockedIds.has(eq.id);
+    const card = document.createElement('div');
+    card.className = `equip-card ${isUnlocked ? '' : 'locked'}`;
+    if (isUnlocked) {
+      card.innerHTML = `
+        <div style="font-size:2em;">${eq.icon}</div>
+        <div style="font-weight:900; font-size:1.1em;">${eq.ruby}</div>
+        <div style="font-size:0.86em; font-weight:700; color:var(--primary);">${eq.short}</div>
+        <div style="font-size:0.86em; color:var(--text-sub);">${eq.detail}</div>
+      `;
+    } else {
+      card.innerHTML = `
+        <div style="font-size:2em;">🔒</div>
+        <div style="font-weight:900;">？？？</div>
+        <div style="font-size:0.85em; color:var(--text-sub);">この器具を使う実験を体験または動画視聴すると解放されます！</div>
+      `;
+    }
+    grid.appendChild(card);
+  });
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quiz-area');
+  const unlockedQuizzes = QUIZ_MASTER.filter((q) => appState.completedExps.includes(q.expId));
+
+  if (unlockedQuizzes.length === 0) {
+    area.innerHTML = `
+      <div class="quiz-card" style="text-align:center;">
+        <div style="font-size:2.5em;">🔒</div>
+        <h3>まだ解放されたクイズがありません</h3>
+        <p style="color:var(--text-sub);">「教科選択」から実験を1つ体験（または動画視聴）すると、その実験のクイズに挑戦できるようになります！</p>
+      </div>
+    `;
+    return;
+  }
+
+  let qIndex = 0;
+  function showQuestion() {
+    const q = unlockedQuizzes[qIndex];
+    const isCleared = appState.quizCleared.includes(q.id);
+    area.innerHTML = `
+      <div class="quiz-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span class="badge badge-playable">問題 ${qIndex + 1} / ${unlockedQuizzes.length}</span>
+          ${isCleared ? '<span class="badge badge-done">✅ 正解済み</span>' : ''}
+        </div>
+        <h3 style="margin-top:4px;">${q.question}</h3>
+        <div class="quiz-options" id="quiz-opts"></div>
+        <div id="quiz-feedback" style="margin-top:14px; display:none;"></div>
+      </div>
+    `;
+
+    const optsEl = document.getElementById('quiz-opts');
+    q.options.forEach((optText, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt-btn';
+      btn.textContent = `${idx + 1}. ${optText}`;
+      btn.onclick = () => {
+        const allBtns = optsEl.querySelectorAll('button');
+        allBtns.forEach((b) => (b.disabled = true));
+
+        const fb = document.getElementById('quiz-feedback');
+        fb.style.display = 'block';
+
+        if (idx === q.answer) {
+          btn.classList.add('correct');
+          playSound('success');
+          if (!appState.quizCleared.includes(q.id)) {
+            appState.quizCleared.push(q.id);
+            saveState();
+          }
+          fb.innerHTML = `
+            <div class="point-box" style="border-color:#16a34a;">
+              <strong>⭕ 大正解！</strong><br>${q.explanation}
+            </div>
+          `;
+        } else {
+          btn.classList.add('wrong');
+          allBtns[q.answer].classList.add('correct');
+          playSound('wrong');
+          fb.innerHTML = `
+            <div class="point-box" style="border-color:#dc2626;">
+              <strong>❌ おしい！正解は ${q.answer + 1} 番です</strong><br>${q.explanation}
+            </div>
+          `;
+        }
+
+        if (unlockedQuizzes.length > 1) {
+          const nextBtn = document.createElement('button');
+          nextBtn.className = 'lab-btn';
+          nextBtn.style.marginTop = '12px';
+          nextBtn.textContent = '次のクイズへ ▶';
+          nextBtn.onclick = () => {
+            playSound('click');
+            qIndex = (qIndex + 1) % unlockedQuizzes.length;
+            showQuestion();
+          };
+          fb.appendChild(nextBtn);
+        }
+      };
+      optsEl.appendChild(btn);
+    });
+  }
+
+  showQuestion();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applySettings();
+  updateTitleProgress();
+
+  document.getElementById('btn-top-biologica').addEventListener('click', () => {
+    playSound('click');
+    goToBiologica();
+  });
+
+  document.getElementById('btn-go-biologica').addEventListener('click', () => {
+    playSound('click');
+    goToBiologica();
+  });
+
+  document.getElementById('btn-menu-biologica').addEventListener('click', () => {
+    playSound('click');
+    goToBiologica();
+  });
+
+  document.getElementById('btn-go-subjects').addEventListener('click', () => {
+    playSound('click');
+    renderSubjects();
+    showScreen('screen-subjects');
+  });
+
+  document.getElementById('btn-go-menu').addEventListener('click', () => {
+    playSound('click');
+    renderEquipment();
+    renderQuiz();
+    showScreen('screen-menu');
+  });
+
+  document.getElementById('btn-home').addEventListener('click', () => {
+    playSound('click');
+    updateTitleProgress();
+    showScreen('screen-title');
+  });
+
+  document.querySelectorAll('.back-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      playSound('click');
+      const target = btn.getAttribute('data-back');
+      if (!target) return;
+      if (target === 'screen-title') updateTitleProgress();
+      if (target === 'screen-units' && currentSubject) renderUnits(currentSubject);
+      if (target === 'screen-experiments' && currentSubject && currentUnit) {
+        renderExperiments(currentSubject, currentUnit);
+      }
+      if (target === 'screen-subjects') renderSubjects();
+      showScreen(target);
+    });
+  });
+
+  document.getElementById('vtab-offline').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('vtab-offline').classList.add('active');
+    document.getElementById('vtab-online').classList.remove('active');
+    document.getElementById('video-offline-pane').style.display = 'block';
+    document.getElementById('video-online-pane').style.display = 'none';
+    startPvVideo();
+  });
+
+  document.getElementById('vtab-online').addEventListener('click', () => {
+    playSound('click');
+    stopPvVideo();
+    document.getElementById('vtab-online').classList.add('active');
+    document.getElementById('vtab-offline').classList.remove('active');
+    document.getElementById('video-online-pane').style.display = 'block';
+    document.getElementById('video-offline-pane').style.display = 'none';
+  });
+
+  document.getElementById('btn-pv-play').addEventListener('click', () => {
+    playSound('click');
+    if (pvPlaying) stopPvVideo();
+    else startPvVideo();
+  });
+
+  document.getElementById('btn-pv-restart').addEventListener('click', () => {
+    playSound('click');
+    pvElapsed = 0;
+    drawPvFrame(0);
+    startPvVideo();
+  });
+
+  document.getElementById('video-progress-wrap').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    pvElapsed = ratio * PV_DURATION;
+    drawPvFrame(pvElapsed);
+  });
+
+  document.getElementById('btn-video-complete').addEventListener('click', () => {
+    if (currentExp) {
+      completeExperiment(currentExp);
+    }
+  });
+
+  document.querySelectorAll('.menu-tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      playSound('click');
+      document.querySelectorAll('.menu-tab-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-mtab');
+      document.querySelectorAll('.mtab-pane').forEach((p) => (p.style.display = 'none'));
+      document.getElementById(`mtab-${tab}`).style.display = 'block';
+      if (tab === 'equip') renderEquipment();
+      if (tab === 'quiz') renderQuiz();
+    });
+  });
+
+  function toggleSetting(key, valA, valB) {
+    appState.settings[key] = appState.settings[key] === valA ? valB : valA;
+    saveState();
+    applySettings();
+    playSound('click');
+  }
+
+  document.getElementById('btn-quick-ruby').addEventListener('click', () => toggleSetting('ruby', true, false));
+  document.getElementById('set-ruby').addEventListener('click', () => toggleSetting('ruby', true, false));
+
+  document.getElementById('btn-quick-font').addEventListener('click', () => toggleSetting('fontSize', 'normal', 'large'));
+  document.getElementById('set-font').addEventListener('click', () => toggleSetting('fontSize', 'normal', 'large'));
+
+  document.getElementById('btn-quick-theme').addEventListener('click', () => toggleSetting('theme', 'light', 'dark'));
+  document.getElementById('set-theme').addEventListener('click', () => toggleSetting('theme', 'light', 'dark'));
+
+  document.getElementById('btn-quick-sound').addEventListener('click', () => toggleSetting('sound', true, false));
+  document.getElementById('set-sound').addEventListener('click', () => toggleSetting('sound', true, false));
+
+  document.getElementById('set-guide').addEventListener('click', () => toggleSetting('guide', true, false));
+
+  document.getElementById('btn-reset-data').addEventListener('click', () => {
+    appState.completedExps = [];
+    appState.quizCleared = [];
+    saveState();
+    playSound('click');
+    updateTitleProgress();
+    renderEquipment();
+    renderQuiz();
+    showToast('🗑️ 進行データをリセットしました');
+  });
+});
+  </script>
 </body>
 </html>
